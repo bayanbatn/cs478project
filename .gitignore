@@ -1,0 +1,16 @@
+# config file
+# shouldn't be checked in because of path names
+###############
+.cproject
+.project
+
+# object files
+##############
+*.o
+*.d
+
+# OS Files
+###########
+Thumbs.db
+Icon?
+.DS_Store*
