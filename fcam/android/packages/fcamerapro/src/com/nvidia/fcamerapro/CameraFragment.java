@@ -371,33 +371,17 @@ public final class CameraFragment extends Fragment implements OnClickListener, O
 	public boolean onTouch(View v, MotionEvent event) {
 		if (v == mCameraView && event.getActionMasked() == MotionEvent.ACTION_DOWN
 				&& mAutoFocusCheckBox.isChecked()) {
-			/* [CS478] Assignment #1
-			 * This piece of code is executed when the user touches the
-			 *  viewfinder. It should initiate autoFocus. To do this, you
-			 *  should call the appropriate method of FCamInterface, in order
-			 *  to get the ball rolling.
-			 *  
-			 *  Check out the native methods in FCamInterface.java. There are
-			 *  ones called enqueueMessageForAutofocus(...), etc.
-			 *  
-			 *  Lastly, look up the Android documentation on MotionEvent
-			 *  to figure out how to retrieve the touch coordinates.
-			 */
-			// TODO TODO TODO
-			// TODO TODO TODO
-			// TODO TODO TODO
-			// TODO TODO TODO
-			// TODO TODO TODO
-			
-			/* [CS478] Assignment #2
-			 * You'll need to further modify the code you used here in Assignment 1
-			 * to handle face focus touch events.
-			 */
-			// TODO TODO TODO
-			// TODO TODO TODO
-			// TODO TODO TODO
-			// TODO TODO TODO
-			// TODO TODO TODO
+			FCamInterface iface = FCamInterface.GetInstance();
+			float y;
+			float x;
+			switch(mTouchActionSpinner.getSelectedItemPosition()){
+			case 0: 
+				iface.enqueueMessageForAutofocus();
+				break;
+			case 1:
+				iface.enqueueMessageForDepthFocusSweep();
+				break;	
+			}
 			return true;
 		}
 		return false;

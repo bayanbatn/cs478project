@@ -10,6 +10,7 @@
 #include "FCamInterface.h"
 #include "AsyncImageWriter.h"
 #include "MyAutoFocus.h"
+#include "FocusSweep.h"
 #include "ParamStat.h"
 #include "HPT.h"
 
@@ -317,45 +318,23 @@ JNIEXPORT void JNICALL Java_com_nvidia_fcamerapro_FCamInterface_enqueueMessageFo
 	/* [CS478] Assignment #1
 	 * Enqueue a new message that represents a request for global autofocus.
 	 */
-	// TODO TODO TODO
-	// TODO TODO TODO
-	// TODO TODO TODO
-	// TODO TODO TODO
-	// TODO TODO TODO
+	int value;
+	LOG("MYFOCUS global focus request\n");
+	sAppData->requestQueue.produce(ParamSetRequest(PARAM_AUTO_FOCUS_GLOBAL, &value, 0));
 }
 
 JNIEXPORT void JNICALL Java_com_nvidia_fcamerapro_FCamInterface_enqueueMessageForAutofocusSpot(JNIEnv *env, jobject thiz, jfloat x, jfloat y) {
-	/* [CS478] Assignment #1
-	 * Enqueue a new message that represents a request for local autofocus
-	 */
-	// TODO TODO TODO
-	// TODO TODO TODO
-	// TODO TODO TODO
-	// TODO TODO TODO
-	// TODO TODO TODO
+
 }
 
-
-/* [CS478] Assignment #2
- * Add a new function that enqueues a message representing a request for face-detection-based autofocus.
- * You will also need to add a corresponding Java method in FCamInterface.java
- */
-// TODO TODO TODO
-// TODO TODO TODO
-// TODO TODO TODO
-// TODO TODO TODO
-// TODO TODO TODO
-
-/* [CS478] Assignment #2
- * Add a new function performs flash/no-flash fusion using ImageStack. The form of
- * this function will be quite different from the other JNI calls above. The assignment
- * webpage has many hints to help you figure out how to implement this section.
- */
-// TODO TODO TODO
-// TODO TODO TODO
-// TODO TODO TODO
-// TODO TODO TODO
-// TODO TODO TODO
+JNIEXPORT void JNICALL Java_com_nvidia_fcamerapro_FCamInterface_enqueueMessageForDepthFocusSweep(JNIEnv *env, jobject thiz) {
+	/* [CS478] Assignment #1
+	 * Enqueue a new message that represents a request for global autofocus.
+	 */
+	int value;
+	LOG("MYFOCUS global focus request\n");
+	sAppData->requestQueue.produce(ParamSetRequest(PARAM_DEPTH_FOCUS_SWEEP, &value, 0));
+}
 
 }
 
@@ -428,6 +407,9 @@ static void *FCamAppThread(void *ptr) {
     sensor.attach(&lens);
     sensor.attach(&flash);
     MyAutoFocus autofocus(&lens);
+    LOG("DEPTH calling focus sweep constructor1 \n");
+    FocusSweep focus_sweep(&lens);
+    LOG("DEPTH calling focus sweep constructor2 \n");
 
     FCam::Image previewImage(PREVIEW_IMAGE_WIDTH, PREVIEW_IMAGE_HEIGHT, FCam::YUV420p);
     FCam::Tegra::Shot shot;
@@ -551,27 +533,13 @@ static void *FCamAppThread(void *ptr) {
 					env->CallVoidMethod(tdata->fcamInstanceRef, tdata->notifyFileSystemChange);
 				}
 				break;
-				/* [CS478] Assignment #1
-				 * You will probably want extra cases here, to handle messages
-				 * that request autofocus to be activated. Define any new
-				 * message types in ParamSetRequest.h.
-				 */
-				// TODO TODO TODO
-				// TODO TODO TODO
-				// TODO TODO TODO
-				// TODO TODO TODO
-				// TODO TODO TODO
-
-				/* [CS478] Assignment #2
-				 * You will probably yet another extra case here to handle face-
-				 * based autofocus. Recall that it might be useful to add a new
-				 * message type in ParamSetRequest.h
-				 */
-				// TODO TODO TODO
-				// TODO TODO TODO
-				// TODO TODO TODO
-				// TODO TODO TODO
-				// TODO TODO TODO
+			case PARAM_DEPTH_FOCUS_SWEEP:
+				//LOG("MYFOCUS local focus switch\n");
+				LOG("DEPTH focus sweep request begin\n");
+				focus_sweep.state = SWEEP_PHASE;
+				focus_sweep.startSweep();
+				LOG("DEPTH focus sweep request end\n");
+				break;
 			default:
 				ERROR("TaskDispatch(): received unsupported task id (%i)!", taskId);
 			}
@@ -618,34 +586,17 @@ static void *FCamAppThread(void *ptr) {
             FCam::autoWhiteBalance(&shot, frame);
             currentShot->preview.evaluated.wb = shot.whiteBalance;
 	    }
-
-	    /* [CS478] Assignment #2
-	     * Above, facesFound contains the list of detected faces, for the given frame.
-	     * If applicable, you may pass these values to the MyAutoFocus instance.
-	     *
-	     * e.g. autofocus.setTarget(facesFound);
-	     * Note that MyAutoFocus currently has no setTarget method. You'd have
-	     * to write the appropriate interface.
-	     *
-	     * You should also only run faceDetector.detectFace(...) if it
-	     * is necessary (to save compute), so change "true" above to something else
-	     * appropriate.
-	     */
-	    // TODO TODO TODO
-	    // TODO TODO TODO
-	    // TODO TODO TODO
-	    // TODO TODO TODO
-	    // TODO TODO TODO
-
-	    /* [CS478] Assignment #1
-	     * You should process the incoming frame for autofocus, if necessary.
-	     * Your autofocus (MyAutoFocus.h) has a function called update(...).
-	     */
-	    // TODO TODO TODO
-	    // TODO TODO TODO
-	    // TODO TODO TODO
-	    // TODO TODO TODO
-	    // TODO TODO TODO
+	    LOG("DEPTH normal loop on\n");
+	    if(focus_sweep.state == SWEEP_PHASE)
+	    {
+	    	LOG("DEPTH sweep phase on\n");
+	    	focus_sweep.update(frame);
+	    }
+	    if(focus_sweep.state == SWEEP_FIN_PHASE)
+	    {
+	    	LOG("DEPTH sweep fin phase on\n");
+	    	focus_sweep.getDepthSamples();
+	    }
 
 	    // Update histogram data
 	    const FCam::Histogram &histogram = frame.histogram();

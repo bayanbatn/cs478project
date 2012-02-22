@@ -40,6 +40,8 @@ public final class FCamInterface {
 	final static private int PARAM_PREVIEW_AUTO_WB_ON = 15;
 	final static private int PARAM_CAPTURE_FPS = 16;
 	final static private int PARAM_TAKE_PICTURE = 17;
+	final static private int PARAM_AUTO_FOCUS_GLOBAL = 18;
+	final static private int PARAM_DEPTH_FOCUS_SWEEP = 19;
 	
 	final static private int SHOT_PARAM_EXPOSURE = 0;
 	final static private int SHOT_PARAM_FOCUS = 1;
@@ -209,7 +211,8 @@ public final class FCamInterface {
 	private native void getParamIntArray(int param, float[] value);
 	private native void getParamFloatArray(int param, float[] value);
 	public native void enqueueMessageForAutofocus();
-	public native void enqueueMessageForAutofocusSpot(float x, float y);	
+	public native void enqueueMessageForAutofocusSpot(float x, float y);
+	public native void enqueueMessageForDepthFocusSweep();
 	/* [CS478] Assignment #2
 	 * Add a new declaration for a method that requests a photograph
 	 * that is created by merging a flash and no-flash image pair. The

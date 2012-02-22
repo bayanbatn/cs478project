@@ -46,6 +46,8 @@
  * to the switch-case statement, in order to define new types of
  * messages, if needed.
  */
+#define PARAM_AUTO_FOCUS_GLOBAL			18
+#define PARAM_DEPTH_FOCUS_SWEEP			19
 // TODO TODO TODO
 // TODO TODO TODO
 // TODO TODO TODO
