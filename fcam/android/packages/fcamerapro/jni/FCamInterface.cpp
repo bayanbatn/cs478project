@@ -13,8 +13,6 @@
 #include "ParamStat.h"
 #include "HPT.h"
 
-#include <opencv2/core/core.hpp>
-
 #define PREVIEW_IMAGE_WIDTH  640
 #define PREVIEW_IMAGE_HEIGHT 480
 
