@@ -4,6 +4,10 @@
 .cproject
 .project
 
+# hidden files
+##############
+.*
+
 # object files
 ##############
 *.o

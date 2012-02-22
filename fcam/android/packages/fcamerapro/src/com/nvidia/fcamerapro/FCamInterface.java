@@ -14,7 +14,7 @@ public final class FCamInterface {
 		System.loadLibrary("FCamTegraHal");
 		System.loadLibrary("FCam");
 		System.loadLibrary("ImageStack");
-		System.loadLibrary("OpenCV");
+		//System.loadLibrary("OpenCV");
 		System.loadLibrary("fcam_iface");
 	}
 

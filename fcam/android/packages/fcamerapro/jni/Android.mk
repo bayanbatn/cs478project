@@ -19,8 +19,10 @@ endif
 LOCAL_CFLAGS 		+= -DFCAM_PLATFORM_ANDROID
 LOCAL_SRC_FILES     := $(wildcard *.cpp)
 LOCAL_SRC_FILES     += $(wildcard *.c)
-LOCAL_STATIC_LIBRARIES += opencv_contrib opencv_calib3d opencv_objdetect opencv_features2d opencv_video opencv_imgproc opencv_highgui opencv_ml opencv_legacy opencv_flann opencv_core
-LOCAL_SHARED_LIBRARIES += fcamhal fcamlib imagestack opencv
+#LOCAL_STATIC_LIBRARIES += opencv_contrib opencv_calib3d opencv_objdetect opencv_features2d opencv_video opencv_imgproc opencv_highgui opencv_ml opencv_legacy opencv_flann opencv_core
+#LOCAL_SHARED_LIBRARIES += fcamhal fcamlib imagestack opencv
+#LOCAL_STATIC_LIBRARIES += opencv_contrib opencv_calib3d opencv_objdetect opencv_features2d opencv_video opencv_imgproc opencv_highgui opencv_ml opencv_legacy opencv_flann opencv_core
+LOCAL_SHARED_LIBRARIES += fcamhal fcamlib imagestack
 LOCAL_LDLIBS           += -llog -lGLESv2 -lEGL
 include $(BUILD_SHARED_LIBRARY)
 
@@ -28,5 +30,5 @@ include $(BUILD_SHARED_LIBRARY)
 $(call import-module,fcam)
 
 ## Include the OpenCV makefile (load OpenCV)
-$(call __ndk_info,Including OpenCV library)
-$(call import-module,fcam/external/opencv)
+#$(call __ndk_info,Including OpenCV library)
+#$(call import-module,fcam/external/opencv)

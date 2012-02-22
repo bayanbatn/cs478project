@@ -10,7 +10,6 @@
 #include "FCamInterface.h"
 #include "AsyncImageWriter.h"
 #include "MyAutoFocus.h"
-#include "MyFaceDetector.h"
 #include "ParamStat.h"
 #include "HPT.h"
 
@@ -429,7 +428,6 @@ static void *FCamAppThread(void *ptr) {
     sensor.attach(&lens);
     sensor.attach(&flash);
     MyAutoFocus autofocus(&lens);
-    MyFaceDetector faceDetector("/data/fcam/data.xml");
 
     FCam::Image previewImage(PREVIEW_IMAGE_WIDTH, PREVIEW_IMAGE_HEIGHT, FCam::YUV420p);
     FCam::Tegra::Shot shot;
@@ -621,20 +619,6 @@ static void *FCamAppThread(void *ptr) {
             currentShot->preview.evaluated.wb = shot.whiteBalance;
 	    }
 
-	    if (false) {
-	    	std::vector<cv::Rect> facesFound = faceDetector.detectFace(frame.image());
-	    	for (unsigned int i = 0; i < facesFound.size(); i++) {
-	    		cv::Rect r = facesFound[i];
-	    		for (int x = 0; x < r.width; x++) {
-	    			frame.image()(r.x + x, r.y)[0] = 254u;
-	    			frame.image()(r.x + x, r.y + r.height)[0] = 254u;
-	    		}
-	    		for (int y = 0; y < r.height; y++) {
-					frame.image()(r.x, r.y + y)[0] = 254u;
-					frame.image()(r.x + r.width, r.y + y)[0] = 254u;
-	    		}
-	    	}
-	    }
 	    /* [CS478] Assignment #2
 	     * Above, facesFound contains the list of detected faces, for the given frame.
 	     * If applicable, you may pass these values to the MyAutoFocus instance.
