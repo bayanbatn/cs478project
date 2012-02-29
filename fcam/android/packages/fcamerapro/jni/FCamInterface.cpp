@@ -605,6 +605,7 @@ static void *FCamAppThread(void *ptr) {
 	    	LOG("DEPTH sweep phase on\n");
 	    	focus_sweep.update(frame);
 	    }
+	    //FOR JASON - grab samples from here!
 	    if(focus_sweep.state == SWEEP_FIN_PHASE)
 	    {
 	    	LOG("DEPTH sweep fin phase on\n");

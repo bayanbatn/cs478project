@@ -6,9 +6,7 @@
 FocusSweep::FocusSweep(FCam::Tegra::Lens *l, FCam::Rect r){
 	lens = l;
 	rect = r;
-	/* [CS478]
-	 * Do any initialization you need.
-	 */
+
 	LOG("DEPTH FOCUSSWEEP \n");
 	state = WAIT_PHASE;
 	setRects();
@@ -19,7 +17,7 @@ FocusSweep::FocusSweep(FCam::Tegra::Lens *l, FCam::Rect r){
 	}
 }
 
-void FocusSweep::setRects()//take focal length later?
+void FocusSweep::setRects()
 {
 	LOG("DEPTH RECTS In set rects\n");
 	int x_step_size = IMAGE_WIDTH / (NUM_RECTS_X + 1);
@@ -38,9 +36,6 @@ void FocusSweep::setRects()//take focal length later?
 			rects.push_back(r);
 
 			rectsFC.push_back(FocusContrast(-1, -1));
-
-			//point3d p = point3d(x, y, 0.0f);
-			//samples.push_back(p);
 		}
 	}
 }
@@ -55,16 +50,6 @@ void FocusSweep::startSweep() {
 	itvlCount = 0;
 	lens->setFocus(discreteDioptres[itvlCount]);
 	itvlCount++;
-	//LOG("DEPTH In start sweep2\n");
-
-	/*if (samples == NULL)
-	{
-		float* samples[NUM_RECTS_Y];
-		//LOG("DEPTH In sweep constructor2\n");
-		for (int i = 0; i<16; i++)
-			samples[i] = new float[NUM_RECTS_X];
-		//LOG("DEPTH In sweep constructor3\n");
-	}*/
 }
 
 /* High Freq Pass filter - averages a region of pixels and takes the difference
@@ -100,11 +85,7 @@ int FocusSweep::computeImageContrast(FCam::Image &image, int rectIdx)
 	return totalValue;
 }
 
-/* [CS478]
- * This method is supposed to be called in order to inform
- * the autofocus engine of a new viewfinder frame.
- * You probably want to compute how sharp it is, and possibly
- * use the information to plan where to position the lens next.
+/* UPDATE
  */
 void FocusSweep::update(const FCam::Frame &f) {
 
@@ -141,8 +122,8 @@ void FocusSweep::update(const FCam::Frame &f) {
 			LOG("DEPTH UPDATE Catch outliers for the first checkpoint\n");
 			if((rectsFC[i].bestContrast * 0.6f) > totalContrast && rectsFC[i].bestFocus == 0)
 			{
-				rectsFC[i].bestContrast = -1;
-				rectsFC[i].bestFocus = -1;
+				rectsFC[i].bestContrast = totalContrast; //-1
+				rectsFC[i].bestFocus = itvlCount; //-1
 			}
 		}
 	}
@@ -215,11 +196,5 @@ void FocusSweep::drawRectangles(const FCam::Frame &frame)
 
 void FocusSweep::logRectDump()
 {
-	////LOG("DEPTH //LOG RECT DUMP BEGIN\n======================\n");
-	////LOG("DEPTH rect x: %d\n", rect.x);
-	////LOG("DEPTH rect y: %d\n", rect.y);
-	////LOG("DEPTH rect width: %d\n", rect.width);
-	////LOG("DEPTH rect height: %d\n", rect.height);
-	////LOG("DEPTH LOG RECT DUMP END\n======================\n");
 }
 
