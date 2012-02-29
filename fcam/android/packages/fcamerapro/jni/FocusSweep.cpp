@@ -11,10 +11,10 @@ FocusSweep::FocusSweep(FCam::Tegra::Lens *l, FCam::Rect r){
 	LOG("DEPTH FOCUSSWEEP \n");
 	state = WAIT_PHASE;
 	setRects();
-	samples = new float*[NUM_RECTS_Y];
+	samples = new int*[NUM_RECTS_Y];
 	for (int y_ind = 0; y_ind < NUM_RECTS_Y; y_ind++)
 	{
-		samples[y_ind] = new float[NUM_RECTS_X];
+		samples[y_ind] = new int[NUM_RECTS_X];
 	}
 
 	is = NULL;
@@ -225,16 +225,16 @@ void FocusSweep::logDepthsDump()
 
 //JASON!!! USE THIS FUNCTION!!!
 /* Must flip the state of focussweep to WAIT_PHASE after calling this function */
-float** FocusSweep::getDepthSamples()
+int** FocusSweep::getDepthSamples()
 {
 	LOG("DEPTH GET SAMPLES\n");
 	for (int i = 0; i < rects.size(); i++)
 	{
 		int y_ind = i % NUM_RECTS_Y;
 		int x_ind = i / NUM_RECTS_Y;
-		samples[y_ind][x_ind] = 1.0f / discreteDioptres[rectsFC[i].bestFocus];
+		samples[y_ind][x_ind] = rectsFC[i].bestFocus;
 		//samples[i].z = 1.0f / discreteDioptres[rectsFC[i].bestFocus];
-		LOG("DEPTH GET SAMPLES x_ind: %d, y_ind: %d, depth: %f\n", x_ind, y_ind, samples[y_ind][x_ind]);
+		LOG("DEPTH GET SAMPLES x_ind: %d, y_ind: %d, depth: %d\n", x_ind, y_ind, samples[y_ind][x_ind]);
 	}
 	state = WAIT_PHASE;
 	return samples;
