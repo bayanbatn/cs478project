@@ -13,6 +13,7 @@
 #include "FocusSweep.h"
 #include "ParamStat.h"
 #include "HPT.h"
+#include "SharpnessMapProcessor.h"
 
 #define PREVIEW_IMAGE_WIDTH  640
 #define PREVIEW_IMAGE_HEIGHT 480
@@ -47,6 +48,7 @@ static FCAM_INTERFACE_DATA *sAppData;
 static AsyncImageWriter *writer;
 
 static void *FCamAppThread(void *tdata);
+static void SaveImageStackImage(ImageStack::Image& image);
 
 // ==========================================================================================
 // PUBLIC JNI FUNCTIONS
@@ -346,6 +348,19 @@ static void OnFileSystemChanged(void) {
 	sAppData->requestQueue.produce(ParamSetRequest(PARAM_PRIV_FS_CHANGED, &value, sizeof(int)));
 }
 
+static void SaveImageStackImage(ImageSet *is, FileFormatDescriptor &fmt, ImageStack::Image& image) {
+	FCam::_Frame* f = new FCam::Tegra::_Frame;
+	f->image = FCam::Image(image.width, image.height, FCam::RGB24);
+	for (int y = 0; y < image.height; y++) {
+		for (int x = 0; x < image.width; x++) {
+			for (int c = 0; c < 3; c++) {
+				((unsigned char*)f->image(x, y))[c] = (unsigned char)(255 * image(x, y)[0] + 0.5f);
+			}
+		}
+	}
+	is->add(fmt, FCam::Frame(f));
+}
+
 static void OnCapture(FCAM_INTERFACE_DATA *tdata, AsyncImageWriter *writer, FCam::Tegra::Sensor &sensor,
 		FCam::Tegra::Flash &flash, FCam::Tegra::Lens &lens) {
 	FCAM_SHOT_PARAMS *currentShot = &tdata->currentShot;
@@ -594,7 +609,15 @@ static void *FCamAppThread(void *ptr) {
 	    if(focus_sweep.state == SWEEP_FIN_PHASE)
 	    {
 	    	LOG("DEPTH sweep fin phase on\n");
-	    	focus_sweep.getDepthSamples();//<-- HERE
+	    	//focus_sweep.getDepthSamples();
+	    	ImageStack::Image depthImage = SharpnessMapProcessor::process(focus_sweep.getDepthSamples(), NUM_RECTS_X, NUM_RECTS_Y, IMAGE_WIDTH, IMAGE_HEIGHT);
+
+	    	// adds the current frame and the depth map into an imageStack
+	    	ImageSet* is = writer->newImageSet();
+	    	FileFormatDescriptor fmt(FileFormatDescriptor::EFormatJPEG, 95);
+	    	is->add(fmt, frame);
+	    	SaveImageStackImage(is, fmt, depthImage);
+	    	writer->push(is);
 	    }
 
 	    // Update histogram data

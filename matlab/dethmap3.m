@@ -1,6 +1,6 @@
 function dethmap3
 
-% depth map patch is 2*halfPatchSize by 2*halfPatchSize
+%% depth map patch is 2*halfPatchSize by 2*halfPatchSize
 halfPatchSize=20;
 Im1=imread('t5.jpg','JPG');
 Im2=imread('t4.jpg','JPG');
@@ -8,28 +8,29 @@ Im3=imread('t3.jpg','JPG');
 Im4=imread('t2.jpg','JPG');
 Im5=imread('t1.jpg','JPG');
 
-%unit : cm
+%%unit : cm
 focal=[500,100,40,20,10];   
 
-%grayscale image
+%%grayscale image
 g1 = rgb2gray(Im1);
 g2 = rgb2gray(Im2);
 g3 = rgb2gray(Im3);
 g4 = rgb2gray(Im4);
 g5 = rgb2gray(Im5);
 
-%sharpness image
+%%sharpness image
+SHARPNESS_THRESHOLD = 50;
 sh1=sharpness(g1);
 sh2=sharpness(g2);
 sh3=sharpness(g3);
 sh4=sharpness(g4);
 sh5=sharpness(g5);
 
-%initial depth map
+%%initial depth map
 dim=size(sh1);
 depthmap=zeros(dim(1),dim(2));
 
-% calculate the sharpness of image at each focus
+%% calculate the sharpness of image at each focus
 % and choose the focus with max local sharpness
 for x=1+halfPatchSize-1:2*halfPatchSize:dim(1)-halfPatchSize 
     for y=1+halfPatchSize-1:2*halfPatchSize:dim(2)-halfPatchSize 

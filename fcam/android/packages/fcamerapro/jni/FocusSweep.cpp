@@ -141,7 +141,7 @@ void FocusSweep::update(const FCam::Frame &f) {
 
 	state = SWEEP_FIN_PHASE;
 
-	//logDepthsDump();
+	logDepthsDump();
 
 	drawRectangles(f);
 
@@ -176,7 +176,7 @@ float** FocusSweep::getDepthSamples()
 		int x_ind = i / NUM_RECTS_Y;
 		samples[y_ind][x_ind] = 1.0f / discreteDioptres[rectsFC[i].bestFocus];
 		//samples[i].z = 1.0f / discreteDioptres[rectsFC[i].bestFocus];
-		LOG("DEPTH GET SAMPLES x_ind: %d, y_ind: %d, depth: %d\n", x_ind, y_ind, samples[y_ind][x_ind]);
+		LOG("DEPTH GET SAMPLES x_ind: %d, y_ind: %d, depth: %f\n", x_ind, y_ind, samples[y_ind][x_ind]);
 	}
 	state = WAIT_PHASE;
 	return samples;
