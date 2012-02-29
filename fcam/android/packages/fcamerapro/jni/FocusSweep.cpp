@@ -85,11 +85,7 @@ int FocusSweep::computeImageContrast(FCam::Image &image, int rectIdx)
 	return totalValue;
 }
 
-/* [CS478]
- * This method is supposed to be called in order to inform
- * the autofocus engine of a new viewfinder frame.
- * You probably want to compute how sharp it is, and possibly
- * use the information to plan where to position the lens next.
+/* UPDATE
  */
 void FocusSweep::update(const FCam::Frame &f) {
 
@@ -126,8 +122,8 @@ void FocusSweep::update(const FCam::Frame &f) {
 			LOG("DEPTH UPDATE Catch outliers for the first checkpoint\n");
 			if((rectsFC[i].bestContrast * 0.6f) > totalContrast && rectsFC[i].bestFocus == 0)
 			{
-				rectsFC[i].bestContrast = -1;
-				rectsFC[i].bestFocus = -1;
+				rectsFC[i].bestContrast = totalContrast; //-1
+				rectsFC[i].bestFocus = itvlCount; //-1
 			}
 		}
 	}
@@ -200,11 +196,5 @@ void FocusSweep::drawRectangles(const FCam::Frame &frame)
 
 void FocusSweep::logRectDump()
 {
-	////LOG("DEPTH //LOG RECT DUMP BEGIN\n======================\n");
-	////LOG("DEPTH rect x: %d\n", rect.x);
-	////LOG("DEPTH rect y: %d\n", rect.y);
-	////LOG("DEPTH rect width: %d\n", rect.width);
-	////LOG("DEPTH rect height: %d\n", rect.height);
-	////LOG("DEPTH LOG RECT DUMP END\n======================\n");
 }
 
