@@ -38,7 +38,7 @@ public:
 		return total/count;
 	}
 
-	static ImageStack::Image process(float** list, int width, int height, int targetWidth, int targetHeight)
+	static ImageStack::Image process(int** list, int width, int height, int targetWidth, int targetHeight)
 	{
 		// single frame, single channel
 		ImageStack::Image target(targetWidth, targetHeight, 1, 1);
@@ -52,7 +52,7 @@ public:
 	        	list[h][w] = interpolateDepth(list, width, height, w, h);
 	        }
 	        // list is given in ROW-COLUMN order, which is equivalent to HEIGHT-WIDTH
-	        *(target(tw,th)) = list[h][w];
+	        *(target(tw,th)) = 0.0f;//list[h][w];
 	      }
 	    }
 	    return target;
