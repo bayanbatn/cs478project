@@ -550,6 +550,7 @@ static void *FCamAppThread(void *ptr) {
 				//LOG("DEPTH local focus switch\n");
 				LOG("DEPTH focus sweep request begin\n");
 				focus_sweep.state = SWEEP_PHASE;
+				focus_sweep.setImageSet(writer->newImageSet());
 				focus_sweep.startSweep();
 				LOG("DEPTH focus sweep request end\n");
 				break;
@@ -613,11 +614,9 @@ static void *FCamAppThread(void *ptr) {
 	    	ImageStack::Image depthImage = SharpnessMapProcessor::process(focus_sweep.getDepthSamples(), NUM_RECTS_X, NUM_RECTS_Y, IMAGE_WIDTH, IMAGE_HEIGHT);
 
 	    	// adds the current frame and the depth map into an imageStack
-	    	ImageSet* is = writer->newImageSet();
 	    	FileFormatDescriptor fmt(FileFormatDescriptor::EFormatJPEG, 95);
-	    	is->add(fmt, frame);
-	    	SaveImageStackImage(is, fmt, depthImage);
-	    	writer->push(is);
+	    	SaveImageStackImage(focus_sweep.getImageSet(), fmt, depthImage);
+	    	writer->push(focus_sweep.getImageSet());
 	    }
 
 	    // Update histogram data
