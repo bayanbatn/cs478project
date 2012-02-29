@@ -74,10 +74,13 @@ int FocusSweep::computeImageContrast(FCam::Image &image, int rectIdx)
 				for (int j = -filterHalfSize; j <= filterHalfSize; j++)
 					sum += *image(x+i, y+j);
 
-			sum /= filterArea;
-			int temp = *image(x, y) - sum;
+			//sum /= filterArea;
+			int temp = (*image(x, y) * filterArea) - sum;
 
-			totalValue += temp * temp;
+			if (temp < 0)
+				totalValue -= temp;
+			else
+				totalValue += temp;
 		}
 	}
 	LOG("DEPTH total value: %d\n", totalValue);

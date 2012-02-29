@@ -11,36 +11,19 @@
 #include "Common.h"
 
 //Number of discrete focal lengths we sweep through
-#define RECT_EDGE_LEN 			60
+#define RECT_EDGE_LEN 			30
 #define IMAGE_WIDTH 			640
 #define IMAGE_HEIGHT 			480
 #define FILTER_SIZE 			5
-#define NUM_NIGHT_IMAGES 		2
-//Face Detect
-#define FD_MAX_FRAMES			3
 //Focus states
 #define SWEEP_FIN_PHASE			2
 #define SWEEP_PHASE 			1
 #define WAIT_PHASE 				0
 //Max number of areas to focus
-#define NUM_RECTS_X 			6
-#define NUM_RECTS_Y 			4
+#define NUM_RECTS_X 			9
+#define NUM_RECTS_Y 			6
 
 typedef unsigned char uchar;
-
-struct point3d
-{
-	int x;
-	int y;
-	float z;
-
-	point3d(int x_pixel, int y_pixel, float z_depth)
-	{
-		x = x_pixel;
-		y = y_pixel;
-		z = z_depth;
-	}
-}typedef point3d;
 
 class FocusSweep{// : public FCam::Tegra::AutoFocus {
 public:
