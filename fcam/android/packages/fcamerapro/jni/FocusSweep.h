@@ -72,9 +72,6 @@ private:
 
        FCam::Tegra::Lens* lens;
        FCam::Rect rect;
-       /* [CS478]
-        * Declare any state variables you might need here.
-        */
 
        //Regions where we're keeping track of the contrast
        std::vector<FCam::Rect> rects;
@@ -82,10 +79,6 @@ private:
        std::vector<FocusContrast> rectsFC;
        //interval count - counts from 0 to 22, where each index is associated with a focal length value
        int itvlCount;
-       //for face detection phase - counts from 0 to 2. For each frame, store the regions where faces were detected
-       int fdFrameCount;
-       //float **samples;
-
 };
 
 #endif /* FOCUSSWEEP_H_ */

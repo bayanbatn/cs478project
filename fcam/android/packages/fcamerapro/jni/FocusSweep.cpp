@@ -6,9 +6,7 @@
 FocusSweep::FocusSweep(FCam::Tegra::Lens *l, FCam::Rect r){
 	lens = l;
 	rect = r;
-	/* [CS478]
-	 * Do any initialization you need.
-	 */
+
 	LOG("DEPTH FOCUSSWEEP \n");
 	state = WAIT_PHASE;
 	setRects();
@@ -19,7 +17,7 @@ FocusSweep::FocusSweep(FCam::Tegra::Lens *l, FCam::Rect r){
 	}
 }
 
-void FocusSweep::setRects()//take focal length later?
+void FocusSweep::setRects()
 {
 	LOG("DEPTH RECTS In set rects\n");
 	int x_step_size = IMAGE_WIDTH / (NUM_RECTS_X + 1);
@@ -38,9 +36,6 @@ void FocusSweep::setRects()//take focal length later?
 			rects.push_back(r);
 
 			rectsFC.push_back(FocusContrast(-1, -1));
-
-			//point3d p = point3d(x, y, 0.0f);
-			//samples.push_back(p);
 		}
 	}
 }
@@ -55,16 +50,6 @@ void FocusSweep::startSweep() {
 	itvlCount = 0;
 	lens->setFocus(discreteDioptres[itvlCount]);
 	itvlCount++;
-	//LOG("DEPTH In start sweep2\n");
-
-	/*if (samples == NULL)
-	{
-		float* samples[NUM_RECTS_Y];
-		//LOG("DEPTH In sweep constructor2\n");
-		for (int i = 0; i<16; i++)
-			samples[i] = new float[NUM_RECTS_X];
-		//LOG("DEPTH In sweep constructor3\n");
-	}*/
 }
 
 /* High Freq Pass filter - averages a region of pixels and takes the difference
