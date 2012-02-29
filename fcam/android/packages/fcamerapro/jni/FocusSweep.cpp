@@ -147,8 +147,8 @@ void FocusSweep::update(const FCam::Frame &f) {
 	}
 
 	if (itvlCount != NUM_INTERVALS){
-		LOG("DEPTH UPDATE update focal length, next itvlCount: %d, next focal dist: %d\n", itvlCount, discreteDioptres[itvlCount]);
-		lens->setFocus(discreteDioptres[itvlCount]);
+		LOG("DEPTH UPDATE update focal length, next itvlCount: %d, next focal dist: %d\n", itvlCount, discreteDioptres[itvlCount - 1]);
+		lens->setFocus(discreteDioptres[itvlCount - 1]);
 		itvlCount++;
 		drawRectangles(f);
 		return;

@@ -23,8 +23,8 @@
 #define SWEEP_PHASE 			1
 #define WAIT_PHASE 				0
 //Max number of areas to focus
-#define NUM_RECTS_X 			12
-#define NUM_RECTS_Y 			8
+#define NUM_RECTS_X 			20
+#define NUM_RECTS_Y 			16
 
 typedef unsigned char uchar;
 
@@ -54,7 +54,7 @@ public:
 
        void startSweep();
        void setImageSet(ImageSet*);
-       ImageSet* getImageSetg();
+       ImageSet* getImageSet();
 
        void update(const FCam::Frame &f);
 
