@@ -20,8 +20,9 @@
 #define SWEEP_PHASE 			1
 #define WAIT_PHASE 				0
 //Max number of areas to focus
-#define NUM_RECTS_X 			20
-#define NUM_RECTS_Y 			16
+#define NUM_RECTS_X 			27
+#define NUM_RECTS_Y 			18
+#define CONTRAST_THRESHOLD 		35000
 
 typedef unsigned char uchar;
 
@@ -50,6 +51,7 @@ private:
 
        /* Private method */
        int computeImageContrast(FCam::Image &image, int rectIdx);
+       int computeSobelContrast(FCam::Image &image, int rectIdx);
 
        void setRects();
        void updateRects();

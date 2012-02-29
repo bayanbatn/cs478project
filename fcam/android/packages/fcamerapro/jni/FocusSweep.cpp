@@ -103,6 +103,41 @@ int FocusSweep::computeImageContrast(FCam::Image &image, int rectIdx)
 	return totalValue;
 }
 
+/* High Freq Pass filter - averages a region of pixels and takes the difference
+ * between the center of the pixel and the average. Not efficiieeeeent!!
+ */
+int FocusSweep::computeSobelContrast(FCam::Image &image, int rectIdx)
+{
+	LOG("DEPTH compute contrast begin\n======================\n");
+
+	unsigned int sum = 0;
+	int totalValue = 0;
+	int filterHalfSize = FILTER_SIZE / 2;
+	int filterArea = FILTER_SIZE * FILTER_SIZE;
+	int highX = rects[rectIdx].x + rects[rectIdx].width - filterHalfSize;
+	int highY = rects[rectIdx].y + rects[rectIdx].height - filterHalfSize;
+	for(int x = rects[rectIdx].x + filterHalfSize; x < highX; x++)
+	{
+		for(int y = rects[rectIdx].y + filterHalfSize; y < highY; y++)
+		{
+			sum = 0;
+			//for (int i = -filterHalfSize; i <= filterHalfSize; i++)
+				//for (int j = -filterHalfSize; j <= filterHalfSize; j++)
+					//sum += *image(x+i, y+j);
+			int Gx = *image(x+1, y+1) + *image(x+1, y-1) + (*image(x+1, y) << 1) - *image(x-1, y+1) - *image(x-1, y-1) - (*image(x-1, y) << 1);
+			int Gy = *image(x+1, y-1) + *image(x-1, y-1) + (*image(x, y-1) << 1) - *image(x-1, y+1) - *image(x+1, y-1) - (*image(x, y+1) << 1);
+
+			//sum /= filterArea;
+			int temp = Gx*Gx + Gy*Gy;
+
+			totalValue += temp;
+		}
+	}
+	LOG("DEPTH total value: %d\n", totalValue);
+	LOG("DEPTH compute contrast end\n======================\n");
+	return totalValue;
+}
+
 /* UPDATE
  */
 void FocusSweep::update(const FCam::Frame &f) {
@@ -121,7 +156,7 @@ void FocusSweep::update(const FCam::Frame &f) {
 	{
 		LOG("DEPTH UPDATE Trying lens focus request again\n");
 		lens->setFocus(expectedFocus);
-		drawRectangles(f);
+		//drawRectangles(f);
 		return;
 	}
 
@@ -131,8 +166,8 @@ void FocusSweep::update(const FCam::Frame &f) {
 
 	for (int i = 0; i < rects.size(); i++)
 	{
-		int totalContrast = computeImageContrast(image, i);
-		if (rectsFC[i].bestContrast < totalContrast)
+		int totalContrast = computeSobelContrast(image, i);
+		if (rectsFC[i].bestContrast < totalContrast && CONTRAST_THRESHOLD < totalContrast)
 		{
 			LOG("DEPTH UPDATE Store contrast\n");
 			rectsFC[i].bestContrast = totalContrast;
@@ -143,8 +178,13 @@ void FocusSweep::update(const FCam::Frame &f) {
 			LOG("DEPTH UPDATE Catch outliers for the first checkpoint\n");
 			if((rectsFC[i].bestContrast * 0.6f) > totalContrast && rectsFC[i].bestFocus == 0)
 			{
-				rectsFC[i].bestContrast = totalContrast; //-1
-				rectsFC[i].bestFocus = itvlCount - 1; //-1
+				if (CONTRAST_THRESHOLD < totalContrast){
+					rectsFC[i].bestContrast = totalContrast; //-1
+					rectsFC[i].bestFocus = itvlCount - 1; //-1
+				} else {
+					rectsFC[i].bestContrast = -1; //-1
+					rectsFC[i].bestFocus = -1; //-1
+				}
 			}
 		}
 	}
@@ -153,7 +193,7 @@ void FocusSweep::update(const FCam::Frame &f) {
 		LOG("DEPTH UPDATE update focal length, next itvlCount: %d, next focal dist: %d\n", itvlCount, discreteDioptres[itvlCount - 1]);
 		lens->setFocus(discreteDioptres[itvlCount - 1]);
 		itvlCount++;
-		drawRectangles(f);
+		//drawRectangles(f);
 		return;
 	}
 
@@ -161,7 +201,7 @@ void FocusSweep::update(const FCam::Frame &f) {
 
 	logDepthsDump();
 
-	drawRectangles(f);
+	//drawRectangles(f);
 
 	//getDepthSamples();
 }
