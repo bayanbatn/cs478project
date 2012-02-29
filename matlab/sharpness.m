@@ -1,4 +1,11 @@
 function [diff] = sharpness(grayscale)
+    
+    G_y = [1, 2, 1; 0, 0, 0;-1,-2,-1];
+    G_x = [1, 0,-1; 2, 0,-2; 1, 0,-1];
+
+    diff =  abs(filter2(G_x, grayscale(:,:))) + abs(filter2(G_y, grayscale(:,:)));
+    
+    %{
     s=size(grayscale);
     diff=zeros(s(1),s(2));
     for i=2:s(1)-1
@@ -25,8 +32,9 @@ function [diff] = sharpness(grayscale)
             v(6)=abs(grayscale(i+1,j-1)-grayscale(i+1,j+1));%y
             
             diff(i,j)=power(power(sum(v(1:3)),2)+power(sum(v(4:6)),2),0.5);
-            
-            
+
+            end
         end
     end
+    %}
 end

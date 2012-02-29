@@ -27,9 +27,10 @@ public:
 		int w, h;
 	    for (int tw = 0; tw < targetWidth; tw++ ) {
 	      for (int th = 0; th < targetHeight; th++) {
-	        w = tw * width / targetWidth;
-	        h = th * height/ targetHeight;
-	        *(target[tw][th]) = list[w][h];
+	        w = floor(width * tw / targetWidth);
+	        h = floor(height* th / targetHeight);
+	        //LOG("(tw, th, w,h) = (%d, %d, %d, %d)", tw, th, w, h);
+	        *(target(tw,th)) = list[h][w];
 	      }
 	    }
 	    return target;

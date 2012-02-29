@@ -11,7 +11,7 @@
 #include "Common.h"
 
 //Number of discrete focal lengths we sweep through
-#define RECT_EDGE_LEN 			60
+#define RECT_EDGE_LEN 			20
 #define IMAGE_WIDTH 			640
 #define IMAGE_HEIGHT 			480
 #define FILTER_SIZE 			5
@@ -23,8 +23,8 @@
 #define SWEEP_PHASE 			1
 #define WAIT_PHASE 				0
 //Max number of areas to focus
-#define NUM_RECTS_X 			6
-#define NUM_RECTS_Y 			4
+#define NUM_RECTS_X 			24
+#define NUM_RECTS_Y 			16
 
 typedef unsigned char uchar;
 
