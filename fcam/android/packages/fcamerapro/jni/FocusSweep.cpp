@@ -89,10 +89,13 @@ int FocusSweep::computeImageContrast(FCam::Image &image, int rectIdx)
 				for (int j = -filterHalfSize; j <= filterHalfSize; j++)
 					sum += *image(x+i, y+j);
 
-			sum /= filterArea;
-			int temp = *image(x, y) - sum;
+			//sum /= filterArea;
+			int temp = (*image(x, y) * filterArea) - sum;
 
-			totalValue += temp * temp;
+			if (temp < 0)
+				totalValue -= temp;
+			else
+				totalValue += temp;
 		}
 	}
 	LOG("DEPTH total value: %d\n", totalValue);
@@ -133,15 +136,15 @@ void FocusSweep::update(const FCam::Frame &f) {
 		{
 			LOG("DEPTH UPDATE Store contrast\n");
 			rectsFC[i].bestContrast = totalContrast;
-			rectsFC[i].bestFocus = itvlCount;
+			rectsFC[i].bestFocus = itvlCount - 1;
 		}
-		else if (itvlCount - 1 == 1)
+		else if (itvlCount - 1 == 0)
 		{
 			LOG("DEPTH UPDATE Catch outliers for the first checkpoint\n");
 			if((rectsFC[i].bestContrast * 0.6f) > totalContrast && rectsFC[i].bestFocus == 0)
 			{
 				rectsFC[i].bestContrast = totalContrast; //-1
-				rectsFC[i].bestFocus = itvlCount; //-1
+				rectsFC[i].bestFocus = itvlCount - 1; //-1
 			}
 		}
 	}
@@ -156,7 +159,7 @@ void FocusSweep::update(const FCam::Frame &f) {
 
 	state = SWEEP_FIN_PHASE;
 
-	//logDepthsDump();
+	logDepthsDump();
 
 	drawRectangles(f);
 
@@ -174,8 +177,8 @@ void FocusSweep::logDepthsDump()
 
 		int rect_y_center = y_step_size * (y_ind + 1);
 		int rect_x_center = x_step_size * (x_ind + 1);
-		float depth = 1.0f / discreteDioptres[rectsFC[i].bestFocus];
-		LOG("DEPTH DEPTHS DUMP rect: %d, depth: %fm, depth idx: %d\n", i, depth, rectsFC[i].bestFocus);
+		float depth = 100.0f / discreteDioptres[rectsFC[i].bestFocus];
+		LOG("DEPTH DEPTHS DUMP rect: %d, depth: %fcm, depth idx: %d\n", i, depth, rectsFC[i].bestFocus);
 		LOG("DEPTH DEPTHS DUMP rect loc x: %d, loc y: %d\n", rect_x_center, rect_y_center);
 	}
 }
@@ -191,7 +194,7 @@ float** FocusSweep::getDepthSamples()
 		int x_ind = i / NUM_RECTS_Y;
 		samples[y_ind][x_ind] = 1.0f / discreteDioptres[rectsFC[i].bestFocus];
 		//samples[i].z = 1.0f / discreteDioptres[rectsFC[i].bestFocus];
-		LOG("DEPTH GET SAMPLES x_ind: %d, y_ind: %d, depth: %d\n", x_ind, y_ind, samples[y_ind][x_ind]);
+		LOG("DEPTH GET SAMPLES x_ind: %d, y_ind: %d, depth: %f\n", x_ind, y_ind, samples[y_ind][x_ind]);
 	}
 	state = WAIT_PHASE;
 	return samples;
