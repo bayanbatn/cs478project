@@ -8,6 +8,7 @@
 #include <android/log.h>
 #include <vector>
 #include "FocusUtil.h"
+#include "Common.h"
 
 //Number of discrete focal lengths we sweep through
 #define RECT_EDGE_LEN 			60
@@ -50,10 +51,11 @@ public:
 
        void update(const FCam::Frame &f);
 
-       std::vector<point3d> getDepthSamples();
+       float** getDepthSamples();
        // State - ranges from face detection (2), focus sweep (1), and waiting (0)
        int state;
-       std::vector<point3d> samples;
+       //std::vector<point3d> samples;
+       float** samples;
 
 private:
 
@@ -64,6 +66,7 @@ private:
        void updateRects();
 
        void logRectDump();
+       void logDepthsDump();
 
        void drawRectangles(const FCam::Frame &frame);
 

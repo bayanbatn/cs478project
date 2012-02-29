@@ -9,14 +9,19 @@ FocusSweep::FocusSweep(FCam::Tegra::Lens *l, FCam::Rect r){
 	/* [CS478]
 	 * Do any initialization you need.
 	 */
-	//LOG("DEPTH In sweep constructo1r\n");
+	LOG("DEPTH FOCUSSWEEP \n");
 	state = WAIT_PHASE;
 	setRects();
+	samples = new float*[NUM_RECTS_Y];
+	for (int y_ind = 0; y_ind < NUM_RECTS_Y; y_ind++)
+	{
+		samples[y_ind] = new float[NUM_RECTS_X];
+	}
 }
 
 void FocusSweep::setRects()//take focal length later?
 {
-	//LOG("DEPTH In set rects\n");
+	LOG("DEPTH RECTS In set rects\n");
 	int x_step_size = IMAGE_WIDTH / (NUM_RECTS_X + 1);
 	int y_step_size = IMAGE_HEIGHT / (NUM_RECTS_Y + 1);
 
@@ -32,8 +37,10 @@ void FocusSweep::setRects()//take focal length later?
 			FCam::Rect r = FCam::Rect(rect_x, rect_y, RECT_EDGE_LEN, RECT_EDGE_LEN);
 			rects.push_back(r);
 
-			point3d p = point3d(x, y, 0.0f);
-			samples.push_back(p);
+			rectsFC.push_back(FocusContrast(-1, -1));
+
+			//point3d p = point3d(x, y, 0.0f);
+			//samples.push_back(p);
 		}
 	}
 }
@@ -45,7 +52,6 @@ void FocusSweep::startSweep() {
 	if (!lens) return;
 	if (state != SWEEP_PHASE) return;
 
-	//LOG("DEPTH In start sweep1\n");
 	itvlCount = 0;
 	lens->setFocus(discreteDioptres[itvlCount]);
 	itvlCount++;
@@ -66,7 +72,7 @@ void FocusSweep::startSweep() {
  */
 int FocusSweep::computeImageContrast(FCam::Image &image, int rectIdx)
 {
-	////LOG("MYFOCUS compute contrast begin\n======================\n");
+	LOG("DEPTH compute contrast begin\n======================\n");
 
 	unsigned int sum = 0;
 	int totalValue = 0;
@@ -89,8 +95,8 @@ int FocusSweep::computeImageContrast(FCam::Image &image, int rectIdx)
 			totalValue += temp * temp;
 		}
 	}
-	////LOG("MYFOCUS total value: %d\n", totalValue);
-	////LOG("MYFOCUS compute contrast end\n======================\n");
+	LOG("DEPTH total value: %d\n", totalValue);
+	LOG("DEPTH compute contrast end\n======================\n");
 	return totalValue;
 }
 
@@ -104,18 +110,18 @@ void FocusSweep::update(const FCam::Frame &f) {
 
 	FCam::Image image = f.image();
 	if (!image.valid()){
-		////LOG("MYFOCUS Invalid image\n");
+		LOG("DEPTH UPDATE Invalid image\n");
 	}
 
 	float expectedFocus = discreteDioptres[itvlCount - 1];
-	////LOG("MYFOCUS The expected focus setting: %f\n", expectedFocus);
+	LOG("DEPTH UPDATE The expected focus setting: %f\n", expectedFocus);
 	float actualFocus = (float) f["lens.focus"];
-	////LOG("MYFOCUS The average focus setting during the frame: %f\n", actualFocus);
+	LOG("DEPTH UPDATE The average focus setting during the frame: %f\n", actualFocus);
 
 	//If the lens focus request didn't go through, try again
 	if ((actualFocus > expectedFocus + 0.003f) || (actualFocus < expectedFocus - 0.003f))
 	{
-		////LOG("MYFOCUS Trying lens focus request again\n");
+		LOG("DEPTH UPDATE Trying lens focus request again\n");
 		lens->setFocus(expectedFocus);
 		drawRectangles(f);
 		return;
@@ -126,12 +132,13 @@ void FocusSweep::update(const FCam::Frame &f) {
 		int totalContrast = computeImageContrast(image, i);
 		if (rectsFC[i].bestContrast < totalContrast)
 		{
+			LOG("DEPTH UPDATE Store contrast\n");
 			rectsFC[i].bestContrast = totalContrast;
 			rectsFC[i].bestFocus = itvlCount;
 		}
 		else if (itvlCount - 1 == 1)
 		{
-			//Catch outliers for the first checkpoint
+			LOG("DEPTH UPDATE Catch outliers for the first checkpoint\n");
 			if((rectsFC[i].bestContrast * 0.6f) > totalContrast && rectsFC[i].bestFocus == 0)
 			{
 				rectsFC[i].bestContrast = -1;
@@ -141,6 +148,7 @@ void FocusSweep::update(const FCam::Frame &f) {
 	}
 
 	if (itvlCount != NUM_INTERVALS){
+		LOG("DEPTH UPDATE update focal length, next itvlCount: %d, next focal dist: %d\n", itvlCount, discreteDioptres[itvlCount]);
 		lens->setFocus(discreteDioptres[itvlCount]);
 		itvlCount++;
 		drawRectangles(f);
@@ -148,19 +156,43 @@ void FocusSweep::update(const FCam::Frame &f) {
 	}
 
 	state = SWEEP_FIN_PHASE;
+
+	//logDepthsDump();
+
 	drawRectangles(f);
+
+	//getDepthSamples();
 }
 
-/* Must flip the state of focussweep to WAIT_PHASE after calling this function */
-std::vector<point3d> FocusSweep::getDepthSamples()
+void FocusSweep::logDepthsDump()
 {
+	for (int i = 0; i < rectsFC.size(); i++)
+	{
+		int y_ind = i % NUM_RECTS_Y;
+		int x_ind = i / NUM_RECTS_Y;
+		int x_step_size = IMAGE_WIDTH / (NUM_RECTS_X + 1);
+		int y_step_size = IMAGE_HEIGHT / (NUM_RECTS_Y + 1);
+
+		int rect_y_center = y_step_size * (y_ind + 1);
+		int rect_x_center = x_step_size * (x_ind + 1);
+		float depth = 1.0f / discreteDioptres[rectsFC[i].bestFocus];
+		LOG("DEPTH DEPTHS DUMP rect: %d, depth: %fm, depth idx: %d\n", i, depth, rectsFC[i].bestFocus);
+		LOG("DEPTH DEPTHS DUMP rect loc x: %d, loc y: %d\n", rect_x_center, rect_y_center);
+	}
+}
+
+//JASON!!! USE THIS FUNCTION!!!
+/* Must flip the state of focussweep to WAIT_PHASE after calling this function */
+float** FocusSweep::getDepthSamples()
+{
+	LOG("DEPTH GET SAMPLES\n");
 	for (int i = 0; i < rects.size(); i++)
 	{
 		int y_ind = i % NUM_RECTS_Y;
 		int x_ind = i / NUM_RECTS_Y;
-		//samples[y_ind][x_ind] = 1.0f / discreteDioptres[rectsFC[i].bestFocus];
-		samples[i].z = 1.0f / discreteDioptres[rectsFC[i].bestFocus];
-		////LOG("MYFOCUS  x: %d\n", rect.x);
+		samples[y_ind][x_ind] = 1.0f / discreteDioptres[rectsFC[i].bestFocus];
+		//samples[i].z = 1.0f / discreteDioptres[rectsFC[i].bestFocus];
+		LOG("DEPTH GET SAMPLES x_ind: %d, y_ind: %d, depth: %d\n", x_ind, y_ind, samples[y_ind][x_ind]);
 	}
 	state = WAIT_PHASE;
 	return samples;
@@ -183,11 +215,11 @@ void FocusSweep::drawRectangles(const FCam::Frame &frame)
 
 void FocusSweep::logRectDump()
 {
-	////LOG("MYFOCUS //LOG RECT DUMP BEGIN\n======================\n");
-	////LOG("MYFOCUS rect x: %d\n", rect.x);
-	////LOG("MYFOCUS rect y: %d\n", rect.y);
-	////LOG("MYFOCUS rect width: %d\n", rect.width);
-	////LOG("MYFOCUS rect height: %d\n", rect.height);
-	////LOG("MYFOCUS LOG RECT DUMP END\n======================\n");
+	////LOG("DEPTH //LOG RECT DUMP BEGIN\n======================\n");
+	////LOG("DEPTH rect x: %d\n", rect.x);
+	////LOG("DEPTH rect y: %d\n", rect.y);
+	////LOG("DEPTH rect width: %d\n", rect.width);
+	////LOG("DEPTH rect height: %d\n", rect.height);
+	////LOG("DEPTH LOG RECT DUMP END\n======================\n");
 }
 

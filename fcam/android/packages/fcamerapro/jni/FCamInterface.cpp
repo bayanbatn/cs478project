@@ -317,7 +317,7 @@ JNIEXPORT void JNICALL Java_com_nvidia_fcamerapro_FCamInterface_enqueueMessageFo
 	 * Enqueue a new message that represents a request for global autofocus.
 	 */
 	int value;
-	LOG("MYFOCUS global focus request\n");
+	LOG("DEPTH global focus request\n");
 	sAppData->requestQueue.produce(ParamSetRequest(PARAM_AUTO_FOCUS_GLOBAL, &value, 0));
 }
 
@@ -330,7 +330,7 @@ JNIEXPORT void JNICALL Java_com_nvidia_fcamerapro_FCamInterface_enqueueMessageFo
 	 * Enqueue a new message that represents a request for global autofocus.
 	 */
 	int value;
-	LOG("MYFOCUS global focus request\n");
+	LOG("DEPTH depth focus request\n");
 	sAppData->requestQueue.produce(ParamSetRequest(PARAM_DEPTH_FOCUS_SWEEP, &value, 0));
 }
 
@@ -532,7 +532,7 @@ static void *FCamAppThread(void *ptr) {
 				}
 				break;
 			case PARAM_DEPTH_FOCUS_SWEEP:
-				//LOG("MYFOCUS local focus switch\n");
+				//LOG("DEPTH local focus switch\n");
 				LOG("DEPTH focus sweep request begin\n");
 				focus_sweep.state = SWEEP_PHASE;
 				focus_sweep.startSweep();
@@ -584,7 +584,7 @@ static void *FCamAppThread(void *ptr) {
             FCam::autoWhiteBalance(&shot, frame);
             currentShot->preview.evaluated.wb = shot.whiteBalance;
 	    }
-	    LOG("DEPTH normal loop on\n");
+	    //LOG("DEPTH normal loop on\n");
 	    if(focus_sweep.state == SWEEP_PHASE)
 	    {
 	    	LOG("DEPTH sweep phase on\n");
