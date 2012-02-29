@@ -20,8 +20,8 @@
 #define SWEEP_PHASE 			1
 #define WAIT_PHASE 				0
 //Max number of areas to focus
-#define NUM_RECTS_X 			30
-#define NUM_RECTS_Y 			20
+#define NUM_RECTS_X 			20
+#define NUM_RECTS_Y 			16
 
 typedef unsigned char uchar;
 
