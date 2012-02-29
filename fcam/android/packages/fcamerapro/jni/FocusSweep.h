@@ -25,6 +25,9 @@
 
 typedef unsigned char uchar;
 
+// forward declarations
+class ImageSet;
+
 class FocusSweep{// : public FCam::Tegra::AutoFocus {
 public:
 
