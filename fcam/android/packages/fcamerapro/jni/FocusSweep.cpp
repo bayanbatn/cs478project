@@ -1,6 +1,7 @@
 
 #include "FocusSweep.h"
-#include <android///LOG.h>
+#include <android/LOG.h>
+#include "AsyncImageWriter.h"
 #include <new>
 
 FocusSweep::FocusSweep(FCam::Tegra::Lens *l, FCam::Rect r){
@@ -15,6 +16,13 @@ FocusSweep::FocusSweep(FCam::Tegra::Lens *l, FCam::Rect r){
 	{
 		samples[y_ind] = new float[NUM_RECTS_X];
 	}
+
+	is = NULL;
+
+}
+
+FocusSweep::~FocusSweep() {
+	delete[] samples;
 }
 
 void FocusSweep::setRects()
@@ -41,6 +49,13 @@ void FocusSweep::setRects()
 }
 
 void FocusSweep::updateRects(){};
+
+void FocusSweep::setImageSet(ImageSet* set) {
+	is = set;
+}
+ImageSet* FocusSweep::getImageSet() {
+	return is;
+}
 
 /* Begin focus phase */
 void FocusSweep::startSweep() {
@@ -88,7 +103,6 @@ int FocusSweep::computeImageContrast(FCam::Image &image, int rectIdx)
 /* UPDATE
  */
 void FocusSweep::update(const FCam::Frame &f) {
-
 	FCam::Image image = f.image();
 	if (!image.valid()){
 		LOG("DEPTH UPDATE Invalid image\n");
@@ -107,6 +121,10 @@ void FocusSweep::update(const FCam::Frame &f) {
 		drawRectangles(f);
 		return;
 	}
+
+	// saves the current frame as image into the current ImageSet
+	FileFormatDescriptor fmt(FileFormatDescriptor::EFormatJPEG, 95);
+	is->add(fmt, f);
 
 	for (int i = 0; i < rects.size(); i++)
 	{

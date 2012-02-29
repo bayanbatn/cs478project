@@ -29,7 +29,8 @@ public:
 	      for (int th = 0; th < targetHeight; th++) {
 	        w = floor(width * tw / targetWidth);
 	        h = floor(height* th / targetHeight);
-	        //LOG("(tw, th, w,h) = (%d, %d, %d, %d)", tw, th, w, h);
+
+	        // list is given in ROW-COLUMN order, which is equivalent to HEIGHT-WIDTH
 	        *(target(tw,th)) = list[h][w];
 	      }
 	    }
