@@ -20,7 +20,7 @@ public:
 
 	static void adjustSharpnessMap(float** list) {}
 
-	static ImageStack::Image process(float** list, int width, int height, int targetWidth, int targetHeight)
+	static ImageStack::Image process(int** list, int width, int height, int targetWidth, int targetHeight)
 	{
 		// single frame, single channel
 		ImageStack::Image target(targetWidth, targetHeight, 1, 1);
@@ -29,8 +29,9 @@ public:
 	      for (int th = 0; th < targetHeight; th++) {
 	        w = floor(width * tw / targetWidth);
 	        h = floor(height* th / targetHeight);
-	        //LOG("(tw, th, w,h) = (%d, %d, %d, %d)", tw, th, w, h);
-	        *(target(tw,th)) = list[h][w];
+
+	        // list is given in ROW-COLUMN order, which is equivalent to HEIGHT-WIDTH
+	        *(target(tw,th)) = 0.0f;//list[h][w];
 	      }
 	    }
 	    return target;
