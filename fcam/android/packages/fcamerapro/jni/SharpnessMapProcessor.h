@@ -8,6 +8,7 @@
 #ifndef SHAPRNESSMAPPROCESSOR_H_
 #define SHAPRNESSMAPPROCESSOR_H_
 
+#include "FocusUtil.h"
 #include <ImageStack/ImageStack.h>
 
 class SharpnessMapProcessor {
@@ -38,6 +39,32 @@ public:
 		return total/count;
 	}
 
+	static int findModeDepth(int** list, int width, int height, int w, int h) {
+		int count[NUM_INTERVALS] = {0};
+
+		for (int i = -1; i <= 1; i++) {
+			for (int j = -1; j <= 1; j++) {
+				int row = h + i;
+				int col = w + j;
+
+				if (row < 0 || row >= height || col < 0 || col >= width) continue;
+				count[ list[row][col] ]++;
+			}
+		}
+
+
+		int maxCount = count[0], maxInd = 0;
+		for (int i = 1; i < NUM_INTERVALS; i++) {
+			if (maxCount < count[i]) {
+				maxCount = count[i];
+				maxInd = i;
+			}
+		}
+		return maxInd;
+
+
+	}
+
 	static ImageStack::Image process(int** list, int width, int height, int targetWidth, int targetHeight)
 	{
 		// single frame, single channel
@@ -49,10 +76,10 @@ public:
 	        h = floor(height* th / targetHeight);
 
 	        if (list[h][w] == -1) {
-	        	list[h][w] = interpolateDepth(list, width, height, w, h);
+	        	list[h][w] = findModeDepth(list, width, height, w, h);
 	        }
 	        // list is given in ROW-COLUMN order, which is equivalent to HEIGHT-WIDTH
-	        *(target(tw,th)) = 0.0f;//list[h][w];
+	        *(target(tw,th)) = 1./ discreteDioptres[list[h][w]];
 	      }
 	    }
 	    return target;

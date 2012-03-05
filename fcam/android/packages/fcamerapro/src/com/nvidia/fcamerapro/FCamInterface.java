@@ -221,11 +221,8 @@ public final class FCamInterface {
 	 * be written to the file system, instead.) 
 	 */
 	// TODO TODO TODO
-	// TODO TODO TODO
-	// TODO TODO TODO
-	// TODO TODO TODO
-	// TODO TODO TODO
 	public native void flashNoFlash(String file1, String file2);
+	public native void mergeAllFocus(String[] nameArr);
 
 	
 	/* [CS478] Assignment #2

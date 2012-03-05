@@ -2,7 +2,6 @@
 #include "FocusSweep.h"
 #include <android/LOG.h>
 #include "AsyncImageWriter.h"
-#include <new>
 
 FocusSweep::FocusSweep(FCam::Tegra::Lens *l, FCam::Rect r){
 	lens = l;
@@ -162,7 +161,7 @@ void FocusSweep::update(const FCam::Frame &f) {
 
 	// saves the current frame as image into the current ImageSet
 	FileFormatDescriptor fmt(FileFormatDescriptor::EFormatJPEG, 95);
-	is->add(fmt, f);
+	is->add(fmt, FCam::Frame(f));
 
 	for (int i = 0; i < rects.size(); i++)
 	{

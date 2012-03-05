@@ -105,11 +105,23 @@ public final class ViewerFragment extends Fragment implements FCamInterfaceEvent
 		 * passing it the names of the two images in the currently selected
 		 * ImageStack.
 		 */
-		// TODO TODO TODO
-		// TODO TODO TODO
-		// TODO TODO TODO
-		// TODO TODO TODO
-		
+		case R.id.mi_merge:
+			if (mImageStackManager.getStackCount() > 0 && mImageStackManager.getStack(mSelectedStack).isLoadComplete() 
+					&& mImageStackManager.getStack(mSelectedStack).getImageCount() >= 8) {
+				Log.d("fcam_iface", "merge clicked");
+				
+				ImageStack is = mImageStackManager.getStack(mSelectedStack);
+				
+				int imageCount = is.getImageCount(); 
+				String[] nameArr = new String[imageCount];
+				for (int i = 0; i < imageCount; i++) {
+					nameArr[i] = is.getImage(i).getName();
+				}
+				
+				FCamInterface fcam = FCamInterface.GetInstance(); 
+				fcam.mergeAllFocus(nameArr);
+			}
+			return true;
 		default:
 			return super.onOptionsItemSelected(item);
 		}
