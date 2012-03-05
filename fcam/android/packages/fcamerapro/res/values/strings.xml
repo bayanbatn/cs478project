@@ -35,6 +35,7 @@
 	<string name="label_info_image">Image Name\nExposure\nGain\nWB\nFlash\n</string>
 	
 	<string name="label_preview_hint">Long press images to enlarge...</string>
+	<string name="menu_item_merge_stack">Merge Stack</string>
 	
 	
 	

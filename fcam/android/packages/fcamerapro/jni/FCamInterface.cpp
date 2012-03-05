@@ -336,6 +336,18 @@ JNIEXPORT void JNICALL Java_com_nvidia_fcamerapro_FCamInterface_enqueueMessageFo
 	sAppData->requestQueue.produce(ParamSetRequest(PARAM_DEPTH_FOCUS_SWEEP, &value, 0));
 }
 
+JNIEXPORT void JNICALL Java_com_nvidia_fcamerapro_FCamInterface_mergeAllFocus (JNIEnv *env, jobject thiz, jobjectArray filenameArray) {
+	int size = env->GetArrayLength(filenameArray);
+	for (int i = 0; i < size; i++) {
+		jstring filename = (jstring) env->GetObjectArrayElement(filenameArray, i);
+		const char *nameStr = env->GetStringUTFChars(filename, NULL);
+
+		LOG("file name %d: %s", i, nameStr);
+
+		env->ReleaseStringUTFChars(filename, nameStr);
+	}
+}
+
 }
 
 // ==========================================================================================
