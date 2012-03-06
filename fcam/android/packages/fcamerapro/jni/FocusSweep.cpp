@@ -139,10 +139,11 @@ int FocusSweep::computeSobelContrast(FCam::Image &image, int rectIdx)
 
 /* UPDATE
  */
-void FocusSweep::update(const FCam::Frame &f) {
+bool FocusSweep::update(const FCam::Frame &f) {
 	FCam::Image image = f.image();
 	if (!image.valid()){
 		LOG("DEPTH UPDATE Invalid image\n");
+		return false;
 	}
 
 	float expectedFocus = discreteDioptres[itvlCount - 1];
@@ -156,12 +157,9 @@ void FocusSweep::update(const FCam::Frame &f) {
 		LOG("DEPTH UPDATE Trying lens focus request again\n");
 		lens->setFocus(expectedFocus);
 		//drawRectangles(f);
-		return;
+		return false;
 	}
 
-	// saves the current frame as image into the current ImageSet
-	FileFormatDescriptor fmt(FileFormatDescriptor::EFormatJPEG, 95);
-	is->add(fmt, FCam::Frame(f));
 
 	for (int i = 0; i < rects.size(); i++)
 	{
@@ -193,7 +191,7 @@ void FocusSweep::update(const FCam::Frame &f) {
 		lens->setFocus(discreteDioptres[itvlCount - 1]);
 		itvlCount++;
 		//drawRectangles(f);
-		return;
+		return true;
 	}
 
 	state = SWEEP_FIN_PHASE;
@@ -203,6 +201,7 @@ void FocusSweep::update(const FCam::Frame &f) {
 	//drawRectangles(f);
 
 	//getDepthSamples();
+	return true;
 }
 
 void FocusSweep::logDepthsDump()
