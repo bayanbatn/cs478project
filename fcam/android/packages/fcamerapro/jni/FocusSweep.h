@@ -39,7 +39,7 @@ public:
        void setImageSet(ImageSet*);
        ImageSet* getImageSet();
 
-       void update(const FCam::Frame &f);
+       bool update(const FCam::Frame &f);
 
        int** getDepthSamples();
        // State - ranges from face detection (2), focus sweep (1), and waiting (0)

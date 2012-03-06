@@ -373,6 +373,17 @@ static void SaveImageStackImage(ImageSet *is, FileFormatDescriptor &fmt, ImageSt
 	is->add(fmt, FCam::Frame(f));
 }
 
+static FCam::Frame copyFrame(const FCam::Frame &src) {
+	FCam::_Frame *f = new FCam::Tegra::_Frame;
+	f->image = src.image().copy();
+	f->exposure = src.exposure();
+	f->frameTime = src.frameTime();
+	f->gain = src.gain();
+	f->whiteBalance = src.whiteBalance();
+	return FCam::Frame(f);
+}
+
+
 static void OnCapture(FCAM_INTERFACE_DATA *tdata, AsyncImageWriter *writer, FCam::Tegra::Sensor &sensor,
 		FCam::Tegra::Flash &flash, FCam::Tegra::Lens &lens) {
 	FCAM_SHOT_PARAMS *currentShot = &tdata->currentShot;
@@ -616,7 +627,10 @@ static void *FCamAppThread(void *ptr) {
 	    if(focus_sweep.state == SWEEP_PHASE)
 	    {
 	    	LOG("DEPTH sweep phase on\n");
-	    	focus_sweep.update(frame);
+	    	if (focus_sweep.update(frame)) {
+	    		FileFormatDescriptor fmt(FileFormatDescriptor::EFormatJPEG, 95);
+	    		focus_sweep.getImageSet()->add(fmt, copyFrame(frame));
+	    	}
 	    }
 	    //FOR JASON - grab samples from here!
 	    if(focus_sweep.state == SWEEP_FIN_PHASE)
