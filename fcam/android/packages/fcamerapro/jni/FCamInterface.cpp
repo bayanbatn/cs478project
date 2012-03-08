@@ -372,6 +372,7 @@ static void OnFileSystemChanged(void) {
 	sAppData->requestQueue.produce(ParamSetRequest(PARAM_PRIV_FS_CHANGED, &value, sizeof(int)));
 }
 
+
 static void SaveImageStackImage(ImageSet *is, FileFormatDescriptor &fmt, ImageStack::Image& image) {
 	FCam::_Frame* f = new FCam::Tegra::_Frame;
 	f->image = FCam::Image(image.width, image.height, FCam::RGB24);
@@ -383,6 +384,18 @@ static void SaveImageStackImage(ImageSet *is, FileFormatDescriptor &fmt, ImageSt
 		}
 	}
 	is->add(fmt, FCam::Frame(f));
+}
+
+static ImageStack::Image frameToImageStackImage(const FCam::Frame &f) {
+	ImageStack::Image image(f.image().width(), f.image().height(), 1, 3); // single frame, 3 channels
+	for (int y = 0; y < image.height; y++) {
+		for (int x = 0; x < image.width; x++) {
+			for (int c = 0; c < image.channels; c++) {
+				((unsigned char*)image(x, y))[c] = (unsigned char)(f.image()(x,y)[c] / 255.f);
+			}
+		}
+	}
+	return image;
 }
 
 static FCam::Frame copyFrame(const FCam::Frame &src) {
@@ -649,7 +662,9 @@ static void *FCamAppThread(void *ptr) {
 	    {
 	    	LOG("DEPTH sweep fin phase on\n");
 	    	//focus_sweep.getDepthSamples();
-	    	ImageStack::Image depthImage = SharpnessMapProcessor::process(focus_sweep.getDepthSamples(), NUM_RECTS_X, NUM_RECTS_Y, IMAGE_WIDTH, IMAGE_HEIGHT);
+	    	ImageStack::Image depthImage = SharpnessMapProcessor::processSamples(focus_sweep.getDepthSamples(), NUM_RECTS_X, NUM_RECTS_Y, IMAGE_WIDTH, IMAGE_HEIGHT);
+	    	ImageStack::Image refImage = frameToImageStackImage(frame);
+	    	SharpnessMapProcessor::processDepthMap(depthImage, refImage);
 
 	    	// adds the current frame and the depth map into an imageStack
 	    	FileFormatDescriptor fmt(FileFormatDescriptor::EFormatJPEG, 95);
