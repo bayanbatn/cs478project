@@ -14,6 +14,7 @@
 #include "ParamStat.h"
 #include "HPT.h"
 #include "SharpnessMapProcessor.h"
+#include "AllFocusImageMerge.h"
 
 #define PREVIEW_IMAGE_WIDTH  640
 #define PREVIEW_IMAGE_HEIGHT 480
@@ -48,7 +49,7 @@ static FCAM_INTERFACE_DATA *sAppData;
 static AsyncImageWriter *writer;
 
 static void *FCamAppThread(void *tdata);
-static void SaveImageStackImage(ImageStack::Image& image);
+static void SaveImageStackImage(ImageSet *is, FileFormatDescriptor &fmt, ImageStack::Image& image);
 
 // ==========================================================================================
 // PUBLIC JNI FUNCTIONS
@@ -338,14 +339,25 @@ JNIEXPORT void JNICALL Java_com_nvidia_fcamerapro_FCamInterface_enqueueMessageFo
 
 JNIEXPORT void JNICALL Java_com_nvidia_fcamerapro_FCamInterface_mergeAllFocus (JNIEnv *env, jobject thiz, jobjectArray filenameArray) {
 	int size = env->GetArrayLength(filenameArray);
+	ImageStack::Image images[size];
+
 	for (int i = 0; i < size; i++) {
 		jstring filename = (jstring) env->GetObjectArrayElement(filenameArray, i);
 		const char *nameStr = env->GetStringUTFChars(filename, NULL);
 
 		LOG("file name %d: %s", i, nameStr);
+		images[i] = ImageStack::Load::apply(nameStr);
+		LOG("%dx%d %d %d\n", images[i].width, images[i].height, images[i].frames, images[i].channels);
 
 		env->ReleaseStringUTFChars(filename, nameStr);
 	}
+
+	ImageSet *is = writer->newImageSet();
+	FileFormatDescriptor fmt(FileFormatDescriptor::EFormatJPEG, 95);
+	ImageStack::Image allfocus = AllFocusImageMerge::process(images, size);
+	SaveImageStackImage(is, fmt, allfocus);
+	SaveImageStackImage(is, fmt, images[size-1]);
+	writer->push(is);
 }
 
 }
@@ -366,7 +378,7 @@ static void SaveImageStackImage(ImageSet *is, FileFormatDescriptor &fmt, ImageSt
 	for (int y = 0; y < image.height; y++) {
 		for (int x = 0; x < image.width; x++) {
 			for (int c = 0; c < 3; c++) {
-				((unsigned char*)f->image(x, y))[c] = (unsigned char)(255 * image(x, y)[0] + 0.5f);
+				((unsigned char*)f->image(x, y))[c] = (unsigned char)((image(x, y)[c] * 255.f) + 0.5f);
 			}
 		}
 	}
