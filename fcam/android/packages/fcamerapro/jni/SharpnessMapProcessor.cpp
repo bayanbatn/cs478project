@@ -85,6 +85,9 @@ ImageStack::Image SharpnessMapProcessor::processSamples(int** list, int width, i
 
 
 void SharpnessMapProcessor::processDepthMap(ImageStack::Image &depthmap, ImageStack::Image &reference) {
+	// first sharpen the reference image to enhance the edges
+	ImageStack::BilateralSharpen::apply(reference, .5, .2, 10);
+	// use the reference image to apply bilateral filter
 	ImageStack::JointBilateral::apply(depthmap, reference, 15, 15, 1, 0.2);
 }
 
