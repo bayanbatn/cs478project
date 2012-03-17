@@ -72,8 +72,6 @@ static void modeSmoothing(ImageStack::Image &target, int **depthList, int width,
 	}
 }
 
-
-
 ImageStack::Image SharpnessMapProcessor::processSamples(int** list, int width, int height, int targetWidth, int targetHeight)
 {
 	// single frame, single channel (black & white)
@@ -86,8 +84,8 @@ ImageStack::Image SharpnessMapProcessor::processSamples(int** list, int width, i
 
 void SharpnessMapProcessor::processDepthMap(ImageStack::Image &depthmap, ImageStack::Image &reference) {
 	// first sharpen the reference image to enhance the edges
-	ImageStack::BilateralSharpen::apply(reference, .5, .2, 10);
+	reference = ImageStack::BilateralSharpen::apply(reference, .2, .7, 5);
 	// use the reference image to apply bilateral filter
-	ImageStack::JointBilateral::apply(depthmap, reference, 15, 15, 1, 0.2);
+	ImageStack::JointBilateral::apply(depthmap, reference, 20, 20, 1, 0.2);
 }
 
