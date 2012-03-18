@@ -210,6 +210,11 @@ public final class CameraFragment extends Fragment implements OnClickListener, O
 		FCamInterface iface = FCamInterface.GetInstance();
 		if (v == mCaptureButton) {
 			if (!iface.isCapturing()) {
+				// make capture button also work for focus-sweep imaging
+				if (mAutoFocusCheckBox.isChecked() && mTouchActionSpinner.getSelectedItemPosition() == 1) {
+					iface.enqueueMessageForDepthFocusSweep();
+					return;
+				}
 				ArrayList<FCamShot> shots = new ArrayList<FCamShot>(16);
 				
 				double exposure = iface.getPreviewParam(FCamInterface.PREVIEW_EXPOSURE);

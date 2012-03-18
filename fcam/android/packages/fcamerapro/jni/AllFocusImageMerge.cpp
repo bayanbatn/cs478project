@@ -20,6 +20,7 @@ static int getDepthIndex(float depthValue) {
 // note this method assumes every image in the array is off the size
 // and the last image is the depth map
 ImageStack::Image AllFocusImageMerge::process(ImageStack::Image *images, int numImages) {
+
 	ImageStack::Image allfocus(images[0].width, images[0].height, 1, 3);
 	for (int y = 0; y < images[0].height; y++) {
 		for (int x = 0; x < images[0].width; x++) {

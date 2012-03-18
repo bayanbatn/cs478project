@@ -355,8 +355,12 @@ JNIEXPORT void JNICALL Java_com_nvidia_fcamerapro_FCamInterface_mergeAllFocus (J
 	ImageSet *is = writer->newImageSet();
 	FileFormatDescriptor fmt(FileFormatDescriptor::EFormatJPEG, 95);
 	ImageStack::Image allfocus = AllFocusImageMerge::process(images, size);
+	SharpnessMapProcessor::processDepthMap(images[size-1], allfocus);
+	allfocus = AllFocusImageMerge::process(images, size);
+
 	SaveImageStackImage(is, fmt, allfocus);
 	SaveImageStackImage(is, fmt, images[size-1]);
+
 	writer->push(is);
 }
 
@@ -658,12 +662,13 @@ static void *FCamAppThread(void *ptr) {
 	    	}
 	    }
 	    //FOR JASON - grab samples from here!
-	    if(focus_sweep.state == SWEEP_FIN_PHASE)
+	    if(focus_sweep.state == SWEEP_FIN_PHASE && frame.image().valid()) // skips if image is invalid for some reason
 	    {
 	    	LOG("DEPTH sweep fin phase on\n");
 	    	//focus_sweep.getDepthSamples();
 	    	ImageStack::Image depthImage = SharpnessMapProcessor::processSamples(focus_sweep.getDepthSamples(), NUM_RECTS_X, NUM_RECTS_Y, IMAGE_WIDTH, IMAGE_HEIGHT);
 	    	ImageStack::Image refImage = frameToImageStackImage(frame);
+
 	    	SharpnessMapProcessor::processDepthMap(depthImage, refImage);
 
 	    	// adds the current frame and the depth map into an imageStack
