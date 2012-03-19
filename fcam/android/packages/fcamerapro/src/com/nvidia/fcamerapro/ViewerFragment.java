@@ -107,7 +107,7 @@ public final class ViewerFragment extends Fragment implements FCamInterfaceEvent
 		 */
 		case R.id.mi_merge:
 			if (mImageStackManager.getStackCount() > 0 && mImageStackManager.getStack(mSelectedStack).isLoadComplete() 
-					&& mImageStackManager.getStack(mSelectedStack).getImageCount() >= 8) {
+					&& mImageStackManager.getStack(mSelectedStack).getImageCount() == FocusUtils.NUM_INTERVALS + 1) {
 				Log.d("fcam_iface", "merge clicked");
 				
 				ImageStack is = mImageStackManager.getStack(mSelectedStack);
@@ -121,6 +121,27 @@ public final class ViewerFragment extends Fragment implements FCamInterfaceEvent
 				FCamInterface fcam = FCamInterface.GetInstance(); 
 				fcam.mergeAllFocus(nameArr);
 			}
+			return true;
+		case R.id.mi_compute_depth:
+			if (mImageStackManager.getStackCount() > 0
+					&& mImageStackManager.getStack(mSelectedStack) != null
+					&& mImageStackManager.getStack(mSelectedStack).isLoadComplete()
+					&& mImageStackManager.getStack(mSelectedStack).getImageCount() == FocusUtils.NUM_INTERVALS) {
+				
+				Log.d("fcam_iface", "compute depth clicked");
+				
+				ImageStack is = mImageStackManager.getStack(mSelectedStack);
+				
+				int imageCount = is.getImageCount(); 
+				String[] nameArr = new String[imageCount];
+				for (int i = 0; i < imageCount; i++) {
+					nameArr[i] = is.getImage(i).getName();
+				}
+				
+				FCamInterface fcam = FCamInterface.GetInstance(); 
+				fcam.enqueueMessageForComputeDepthMap(nameArr);				
+			}
+			
 			return true;
 		default:
 			return super.onOptionsItemSelected(item);

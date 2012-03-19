@@ -337,6 +337,11 @@ JNIEXPORT void JNICALL Java_com_nvidia_fcamerapro_FCamInterface_enqueueMessageFo
 	sAppData->requestQueue.produce(ParamSetRequest(PARAM_DEPTH_FOCUS_SWEEP, &value, 0));
 }
 
+JNIEXPORT void JNICALL Java_com_nvidia_fcamerapro_FCamInterface_enqueueMessageForComputeDepthMap(JNIEnv *env, jobject thiz, jobjectArray filenames) {
+	LOG("Compute Depth Map");
+
+}
+
 JNIEXPORT void JNICALL Java_com_nvidia_fcamerapro_FCamInterface_mergeAllFocus (JNIEnv *env, jobject thiz, jobjectArray filenameArray) {
 	int size = env->GetArrayLength(filenameArray);
 	ImageStack::Image images[size];
@@ -345,12 +350,10 @@ JNIEXPORT void JNICALL Java_com_nvidia_fcamerapro_FCamInterface_mergeAllFocus (J
 		jstring filename = (jstring) env->GetObjectArrayElement(filenameArray, i);
 		const char *nameStr = env->GetStringUTFChars(filename, NULL);
 
-		LOG("file name %d: %s", i, nameStr);
 		images[i] = ImageStack::Load::apply(nameStr);
-		LOG("%dx%d %d %d\n", images[i].width, images[i].height, images[i].frames, images[i].channels);
-
 		env->ReleaseStringUTFChars(filename, nameStr);
 	}
+	LOG("[All Focus Merge] Done loading files");
 
 	ImageSet *is = writer->newImageSet();
 	FileFormatDescriptor fmt(FileFormatDescriptor::EFormatJPEG, 95);
