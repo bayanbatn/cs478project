@@ -221,7 +221,6 @@ void FocusSweep::logDepthsDump()
 	}
 }
 
-//JASON!!! USE THIS FUNCTION!!!
 /* Must flip the state of focussweep to WAIT_PHASE after calling this function */
 int** FocusSweep::getDepthSamples()
 {
@@ -256,4 +255,3 @@ void FocusSweep::drawRectangles(const FCam::Frame &frame)
 void FocusSweep::logRectDump()
 {
 }
-
