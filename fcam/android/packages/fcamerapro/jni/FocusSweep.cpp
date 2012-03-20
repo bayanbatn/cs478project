@@ -11,9 +11,11 @@ FocusSweep::FocusSweep(FCam::Tegra::Lens *l, FCam::Rect r){
 	state = WAIT_PHASE;
 	setRects();
 	samples = new int*[NUM_RECTS_Y];
+	samples2 = new int*[NUM_RECTS_Y];
 	for (int y_ind = 0; y_ind < NUM_RECTS_Y; y_ind++)
 	{
 		samples[y_ind] = new int[NUM_RECTS_X];
+		samples2[y_ind] = new int[NUM_RECTS_X];
 	}
 
 	is = NULL;
@@ -22,6 +24,7 @@ FocusSweep::FocusSweep(FCam::Tegra::Lens *l, FCam::Rect r){
 
 FocusSweep::~FocusSweep() {
 	delete[] samples;
+	delete[] samples2;
 }
 
 void FocusSweep::setRects()
@@ -236,6 +239,28 @@ int** FocusSweep::getDepthSamples()
 	state = WAIT_PHASE;
 	return samples;
 }
+
+
+/* get the sharpness of each patch so that we could compute the confidence
+ * for the smoothing
+ */
+int** FocusSweep::getSharpnessSamples()
+{
+	LOG("DEPTH GET SHARPNESS SAMPLES\n");
+	for (int i = 0; i < rects.size(); i++)
+	{
+		int y_ind = i % NUM_RECTS_Y;
+		int x_ind = i / NUM_RECTS_Y;
+		//samples2[y_ind][x_ind] = rectsFC[i].bestFocus;//rectsFC[i].bestContrast;
+		samples2[y_ind][x_ind] =rectsFC[i].bestContrast;
+		LOG("DEPTH GET SHARPNESS SAMPLES x_ind: %d, y_ind: %d, depth: %d\n", x_ind, y_ind, samples2[y_ind][x_ind]);
+	}
+	state = WAIT_PHASE;
+	return samples2;
+}
+
+
+
 
 void FocusSweep::drawRectangles(const FCam::Frame &frame)
 {

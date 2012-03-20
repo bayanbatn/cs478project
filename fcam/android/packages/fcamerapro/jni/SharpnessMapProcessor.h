@@ -19,7 +19,7 @@ public:
 
 	// takes a list of [width x height] depth samples, returns a depth map of [targetWidth x targetHeight]
 	static ImageStack::Image processSamples(int** list, int width, int height, int targetWidth, int targetHeight);
-
+	static ImageStack::Image processSampleWithConfidence(int** list, int** values, int width, int height, int targetWidth, int targetHeight);
 	// takes the depthmap and a reference image, uses bilateral filtering to smooth it
 	static void processDepthMap(ImageStack::Image &depthmap, ImageStack::Image &reference);
 };
