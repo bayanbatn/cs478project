@@ -65,4 +65,29 @@ static float tforms[9][3][3] = {
 }
 };
 
+static void matrixVectorMult(float mat[3][3], float vec[3], float result[3]) {
+	for (int i = 0; i < 3; i++) {
+		result[i] = 0;
+		for (int j = 0; j < 3; j++) {
+			result[i] += mat[i][j]*vec[j];
+		}
+	}
+}
+
+static void calibrateCoords(int& x, int& y, int depthInd) {
+	// everything is calibrated to the closest focus,
+	// so the transformation for that depth is identity
+	if (depthInd == NUM_INTERVALS -1) return;
+
+	float vec[3] = {x, y, 1.f};
+	float result[3];
+
+	matrixVectorMult(tforms[depthInd], vec, result);
+
+	x = (int)(result[0]+0.5f);
+	y = (int)(result[1]+0.5f);
+	//LOG("calibrated %d (x, y) = (%d, %d)", depthInd, x, y);
+}
+
+
 #endif
