@@ -38,7 +38,7 @@
 \maketitle
 
 \begin{abstract}
-Depth information is crucial in providing scene understanding for many post-processing applications in computational photography. While depth maps can be easily obtained through stereo cameras or external devices such as infrared sensors, it is difficult in mobile photography because of hardware limitation. In this project, we will implement depth-by-focus, sweeping a single lens across various focus distances and composite an approximate depth map. The depth map will be improved by segmentation and bilateral filtering. We will then demonstrate the effectiveness of the technique by utilizaing the depth map and simulate light-field photography as well as synthetic depth of field.
+Depth information is crucial in providing scene understanding for many post-processing applications in computational photography. While depth maps can be easily obtained through stereo cameras or external devices such as infrared sensors, it is difficult in mobile photography because of hardware limitation. In this project, we will implement depth-by-focus, sweeping a single lens across various focus distances and composite an approximate depth map. The depth map will be improved by segmentation and bilateral filtering. We will then demonstrate the effectiveness of the technique by utilizing the depth map and simulate light-field photography as well as synthetic depth of field.
 
 \end{abstract}
 
@@ -79,8 +79,36 @@ As we sweep across different focus distances, we record only the current maximum
 \subsection{Depth Map Generation}
 \label{sec:depthmap-generation}
 One of the inherent problem in sharpness calculations, as well as in all focusing methods in general, is that they fail on textureless surfaces.  Therefore, after obtaining the best focus distance and best sharpness pair, $<d_i, \lambda_i>$, for each sample point, we first correct for points sampled at low texture patches.  Every sample point whose sharpness is below some predefined threshold, $\Lambda$, will update its sharpness by finding the most common depth value in the patches around it.  This is achieved by a simple voting scheme: each of the nine pixels will cast a vote for the depth value it represents, and its vote is weighted by its confidence, which is the normalized sharpness value. \\
-Then, we simply naively assume the entire patch exists at the same depth, thus generating a blocky depth map as in ~\ref{fig:initial-depth-map} of the same dimension as the input image. Next, we take a full-colored frame from the input stack as reference image, and use joint bilateral filtering to smooth out the patch boundaries.  This is because we want fairly aggressive smoothing while preserving edges from the color space. \\
-This gives us our first approximate depth map, as shown in ~\ref{fig:filtered-depth-map}.  We quickly realized that any frame we could choose from the stack could not serve as a good edge reference, because at least some part of the image is out of focus.  We can solve the problem if we had an all-in-focus image, but we could only get a good all-in-focus image if we had a better depth map.  To solve this problem, we iteratively refined our depth map by generating all-in-focus image based on the current depth map ~\ref{fig:depth-map-refining}.  This provides us highly accurate depth map with clear object edges.
+
+Then, we simply naively assume the entire patch exists at the same depth, thus generating a blocky depth map as in Figure ~\ref{fig:initial-depth-map} of the same dimension as the input image. Next, we take a full-colored frame from the input stack as reference image, and use joint bilateral filtering to smooth out the patch boundaries.  This is because we want fairly aggressive smoothing while preserving edges from the color space. \\
+This gives us our first approximate depth map, as shown in Figure ~\ref{fig:filtered-depth-map}.  We quickly realized that any frame we could choose from the stack could not serve as a good edge reference, because at least some part of the image is out of focus.  We can solve the problem if we had an all-in-focus image, but we could only get a good all-in-focus image if we had a better depth map.  To solve this problem, we iteratively refined our depth map by generating all-in-focus image based on the current depth map (Figure ~\ref{fig:depth-map-refining}).  This provides us highly accurate depth map with clear object edges, while smoothing the borders to produce convincing transition between the patches, Figure ~\ref{fig:refined-depth-map}.
+\begin{figure}
+\centering
+\includegraphics[height=1.5in]{images/initial-depth-map.jpg}
+\caption{Initial Depth Map}
+\label{fig:initial-depth-map}
+\end{figure}
+
+\begin{figure}
+\centering
+\includegraphics[width=3in]{images/filtered-depth-map.jpg}
+\caption{Depth Map Filtered with Bilateral Filtering}
+\label{fig:filtered-depth-map}
+\end{figure}
+
+\begin{figure}
+\centering
+\includegraphics[width=3in]{images/refined-depth-map.jpg}
+\caption{Depth Map Refined with All-in-Focus Image once}
+\label{fig:depth-map-refined}
+\end{figure}
+
+\begin{figure}
+\centering
+\includegraphics[width=3in]{images/depth-map-refining.jpg}
+\caption{Depth Map Refining with All-in-Focus Images}
+\label{fig:depth-map-refining}
+\end{figure}
 
 \subsection{All-in-Focus Imaging}
 
@@ -89,14 +117,31 @@ One application of having an image stack and an approximate depth map is to prod
 p_{i,j} := images[ depthmap_{i,j} ](i,j)
 \end{equation}, where images is image stack represented as an array, and depthmap returns values which are indices into the array.  
 \subsubsection{Calibration}
-There is a subtle problem to solve when merging images at different focus distances: each focus distance has a slight optical magnification.  Images taken at closer focus distances will be magnified by an amount that is dependent on each lens' manufacturing specification.  Fortunately, since this geometric distortion is consistent across all images taken by the same camera, we can calibrate once just once and store the transformation matrices statically. We use calibration images ~\ref{fig:calibration} and hand-label control points that are corresponding in each pair of images. Since this is a non-reflective similarity transform, only two pairs of control points are necessary for each pair of images.  We compute the transformation matrices using the image with the smallest focus distance as base image.  This is because any coordinate in this image will have a correspondence in farther-focused images, but not vice versa.  Each transformation matrix, $C_d\in R^{3x3}$, transforms homogenized target image coordinates $(x,y,1)$ to the coordinates in the image captured at depth $d$, $(x_d,y_d,1)$. So now we revise the equation to be
+
+\begin{figure}
+\centering
+\includegraphics[width=3in]{images/calibration.jpg}
+\caption{Calibration Image}
+\label{fig:calibration}
+\end{figure}
+
+There is a subtle problem to solve when merging images at different focus distances: each focus distance has a slight optical magnification.  Images taken at closer focus distances will be magnified by an amount that is dependent on each lens' manufacturing specification.  Fortunately, since this geometric distortion is consistent across all images taken by the same camera, we can calibrate once just once and store the transformation matrices statically. We use calibration images Figure ~\ref{fig:calibration} and hand-label control points that are corresponding in each pair of images. Since this is a non-reflective similarity transform, only two pairs of control points are necessary for each pair of images.  We compute the transformation matrices using the image with the smallest focus distance as base image.  This is because any coordinate in this image will have a correspondence in farther-focused images, but not vice versa.  Each transformation matrix, $C_d\in R^{3x3}$, transforms homogenized target image coordinates $(x,y,1)$ to the coordinates in the image captured at depth $d$, $(x_d,y_d,1)$. So now we revise the equation to be
 \begin{eqnarray} 
 v &:=& [x,y,1] \nonumber \\
 d &:=& depthmap_{i,j}  \nonumber \\
 p_{i,j} &:=& images[ d ]( (C_d v)_x, (C_d v)_y)
-\end{eqnarray}
+\end{eqnarray}. The resulting all-in-focus images are in fact very convincing, as seen in figure ~\ref{fig:all-focus-calibrated}.
+
+\begin{figure}
+\centering
+\includegraphics[width=3in]{images/all-focus-calibrated.jpg}
+\caption{Comparing all-in-focus images before calibration (left) and after (right). Notice the curve on the flashlight's edge on the right is corrected.}
+\label{fig:all-focus-calibrated}
+\end{figure}
+
 
 \subsection{Synthetic Depth of Field Application}
+
 A reverse application of an all-in-focus image would be to create images with synthetic depth-of-field effect. A common use of this would be 
 to create an artificial shallow depth-of-field in an image for artistic effect. Yet another application would be to create the "miniature model" effect
 in images, to create the look and feel of a smaller scene than the one present in reality. Fortunately, we can leverage on the information provided
@@ -134,9 +179,39 @@ R&\propto&\frac{1}{f}-\frac{1}{f_{0}}
  
 Since $s$ and $D$ are intrinsic camera constants, we are not interested in them. Furthermore, 
 
-\subsection{Image Merge and Insertion}
+\subsubsection{Image Merging and Insertion}
+
+Depth map provides us information estimated depth distances of the image pixels. Thus, when merging two images, we could get the information which objects in the images is in the front-focus, and could cover the scene of the another image from another image. The application is aimed to merge two images, which has all-in-focus image and depth map. We also assuming that there is no movement and position shift when taking these two images, so that the background is identical. The only difference is the front-focused objects. By utilizing the refined all-in-focus images and depth maps for each image, we simply choose each pixel to present by the corresponding depth value from the depth map. Comparing the depth value, we can synthesize a new image with both front-focused objects shown. 
+
+The result is mainly depended on the quality of depth map.  The following images demonstrate a set of images and their merged image. When depth map value we estimated is accurate. The quality of image merging is well. 
+\begin{figure}[h!]
+   \centering
+   \includegraphics[height=2.0in]{images/merged1}
+   \caption{Example set:Upper and lower left: all-in-focus images, and upper and lower right: the corresponding depth map. }
+\end{figure}
+
+\begin{figure}[h!]
+   \centering
+   \includegraphics[height=2.0in]{images/merged}
+   \caption{Example result: merged image}
+\end{figure}
+
+ There is some case that for one pixel, both images have the same depth value. The way we solve this issue now is choosing pixel of one image when this case occurs. 
+
+\subsubsection{Image Depth of Field Image}
 
 \section{Conclusion and Further Works}
+
+Overall, depth from focus provides a good way of achieving an approximate depth map for certain applications.  While the depth map is not perfect for tasks that require clear and definite object borders, like image insertion, it produces very satisfactory all-in-focus images. This is the depth maps are unreliable in places of low texture, but for all-in-focus images, it is difficult to distinguish textureless patches from different depths in the image stack anyway. On the other hand, for object insertion, we can easily have holes in an object filled in by scene from a different depth from the other image.
+
+
+For the imaging merging part, we need to using image segmentation to solve the ambiguity caused by the case that two images have the same depth value for one pixel. With assistance of image segmentation. we can choose the more likely image to present even if both images have the same depth value. 
+
+\begin{figure}[h!]
+   \centering
+   \includegraphics[height=2.0in]{images/faultmerged}
+   \caption{Fault image: the semi-transparant parts are the areas have the same depth value in both depth values}
+\end{figure}
 
 \subsection{Lighting and Shadows}
 One prominent problem with our approach is when the image has strong shadows or specular highlights.  These features produce strong edges in the color space, and thus bilateral filtering may assert a different depth value to these section, even though they should be the same.  This is a difficult problem to solve and is present with other attempts of depth from focus \cite[Grossmann1987] and other unaided image segmentation algorithms.  The best solution to alleviate this problem, if we had more time to implement, is to provide an interface for user feedback and lower the confidence of these segments entirely. 
