@@ -8,7 +8,7 @@
 %%% for the commands and parameters found in the source document. (The code
 %%% is identical in ``template.tex'' and ``template.annotated.tex.'')
 
-\documentclass[annual]{acmsiggraph}
+\documentclass[annual, 12pt]{acmsiggraph}
 \usepackage{program}
 
 \TOGonlineid{45678}
@@ -100,7 +100,7 @@ This gives us our first approximate depth map, as shown in Figure ~\ref{fig:filt
 \centering
 \includegraphics[width=3in]{images/refined-depth-map.jpg}
 \caption{Depth Map Refined with All-in-Focus Image once}
-\label{fig:depth-map-refined}
+\label{fig:refined-depth-map}
 \end{figure}
 
 \begin{figure}
@@ -135,7 +135,7 @@ p_{i,j} &:=& images[ d ]( (C_d v)_x, (C_d v)_y)
 \begin{figure}
 \centering
 \includegraphics[width=3in]{images/all-focus-calibrated.jpg}
-\caption{Comparing all-in-focus images before calibration (left) and after (right). Notice the curve on the flashlight's edge on the right is corrected.}
+\caption{Comparing all-in-focus images before calibration (right) and after (left). Notice the curve on the flashlight's edge on the right is corrected.}
 \label{fig:all-focus-calibrated}
 \end{figure}
 
@@ -153,20 +153,20 @@ R=s\frac{D}{2}[\frac{1}{f}-\frac{1}{u}-\frac{1}{s}]
 where $f$, $u$, $s$, and $D$ are the new focal length, the distance to object from lens, the distance to the image plane from lens, and the lens diameter, respectively (Murali Subbarao). Here, $s$ and $D$ are camera specific constants. Now, let us use the depth field information. Given the depth field, for each pixel, we can estimate the focal length that gives us a zero blur radius: 
 
 \begin{eqnarray} 
-0&=&s\frac{D}{2}[\frac{1}{f_{0}}-\frac{1}{u}-\frac{1}{s}], which results in
-\frac{1}{s}&=&\frac{1}{f_{0}}-\frac{1}{u}
-\end
+0 &=& s\frac{D}{2}[\frac{1}{f_{0}}-\frac{1}{u}-\frac{1}{s}], which results in\nonumber \\
+\frac{1}{s} &=& \frac{1}{f_0} - \frac{1}{u} 
+\end{eqnarray}
 
 Here, $f_0$ denotes the zero blur focal length. We can now simplify the initial expression to for blur radius:
 
 \begin{eqnarray} 
-0&=&s\frac{D}{2}[\frac{1}{f_{0}}-\frac{1}{u}-\frac{1}{s}], which results in
-\frac{1}{s}&=&\frac{1}{f_{0}}-\frac{1}{u}
-\end
+0&=&s\frac{D}{2}[\frac{1}{f_{0}}-\frac{1}{u}-\frac{1}{s}], which results in \nonumber \\
+\frac{1}{s}&=&\frac{1}{f_{0}}-\frac{1}{u} 
+\end{eqnarray}
 
 \begin{eqnarray} 
-R&=&s\frac{D}{2}[\frac{1}{f}-\frac{1}{f_{0}}], or
-R&\propto&\frac{1}{f}-\frac{1}{f_{0}}
+R &=& s\frac{D}{2}[\frac{1}{f}-\frac{1}{f_0}], or \nonumber \\
+R &\propto& \frac{1}{f}-\frac{1}{f_{0}}
 \end{eqnarray}
  
 Since $s$ and $D$ are intrinsic constants of the camera, we are not interested in them. Furthermore, in our application, we wish allow the users to customize the degree of synthetic blur. Consequently, we do not require calibration to measure $D$ and $s$. 
