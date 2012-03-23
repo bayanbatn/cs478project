@@ -8,7 +8,6 @@
 #ifndef SHAPRNESSMAPPROCESSOR_H_
 #define SHAPRNESSMAPPROCESSOR_H_
 
-#include "FocusUtil.h"
 #include <ImageStack/ImageStack.h>
 
 class SharpnessMapProcessor {
@@ -17,74 +16,12 @@ private:
 	static float magnificationCorrection;
 
 public:
-	static void calibrate() {}
 
-	static float interpolateDepth(float** list, int width, int height, int w, int h) {
-
-		float convo[9] = {1,2,1,2,4,2,1,2,1};
-
-		float total = 0;
-		int count = 0;
-		for (int i = -1; i <= 1; i++) {
-			for (int j = -1; j <= 1; j++) {
-				int row = h + i;
-				int col = w + j;
-
-				if (row < 0 || row >= height || col < 0 || col >= width) continue;
-				total += convo[3*(i+1) + j+1] * list[row][col];
-				count += 1;
-			}
-		}
-		if (count == 0) return 0;
-		return total/count;
-	}
-
-	static int findModeDepth(int** list, int width, int height, int w, int h) {
-		int count[NUM_INTERVALS] = {0};
-
-		for (int i = -1; i <= 1; i++) {
-			for (int j = -1; j <= 1; j++) {
-				int row = h + i;
-				int col = w + j;
-
-				if (row < 0 || row >= height || col < 0 || col >= width) continue;
-				count[ list[row][col] ]++;
-			}
-		}
-
-
-		int maxCount = count[0], maxInd = 0;
-		for (int i = 1; i < NUM_INTERVALS; i++) {
-			if (maxCount < count[i]) {
-				maxCount = count[i];
-				maxInd = i;
-			}
-		}
-		return maxInd;
-
-
-	}
-
-	static ImageStack::Image process(int** list, int width, int height, int targetWidth, int targetHeight)
-	{
-		// single frame, single channel
-		ImageStack::Image target(targetWidth, targetHeight, 1, 1);
-		int w, h;
-	    for (int tw = 0; tw < targetWidth; tw++ ) {
-	      for (int th = 0; th < targetHeight; th++) {
-	        w = floor(width * tw / targetWidth);
-	        h = floor(height* th / targetHeight);
-
-	        if (list[h][w] == -1) {
-	        	list[h][w] = findModeDepth(list, width, height, w, h);
-	        }
-	        // list is given in ROW-COLUMN order, which is equivalent to HEIGHT-WIDTH
-	        *(target(tw,th)) = 1./ discreteDioptres[list[h][w]];
-	      }
-	    }
-	    return target;
-	}
-
+	// takes a list of [width x height] depth samples, returns a depth map of [targetWidth x targetHeight]
+	static ImageStack::Image processSamples(int** list, int width, int height, int targetWidth, int targetHeight);
+	static ImageStack::Image processSampleWithConfidence(int** list, int** values, int width, int height, int targetWidth, int targetHeight);
+	// takes the depthmap and a reference image, uses bilateral filtering to smooth it
+	static void processDepthMap(ImageStack::Image &depthmap, ImageStack::Image &reference);
 };
 
 

@@ -338,6 +338,11 @@ JNIEXPORT void JNICALL Java_com_nvidia_fcamerapro_FCamInterface_enqueueMessageFo
 	sAppData->requestQueue.produce(ParamSetRequest(PARAM_DEPTH_FOCUS_SWEEP, &value, 0));
 }
 
+JNIEXPORT void JNICALL Java_com_nvidia_fcamerapro_FCamInterface_enqueueMessageForComputeDepthMap(JNIEnv *env, jobject thiz, jobjectArray filenames) {
+	LOG("Compute Depth Map");
+
+}
+
 JNIEXPORT void JNICALL Java_com_nvidia_fcamerapro_FCamInterface_mergeAllFocus (JNIEnv *env, jobject thiz, jobjectArray filenameArray) {
 	int size = env->GetArrayLength(filenameArray);
 	ImageStack::Image images[size];
@@ -346,18 +351,25 @@ JNIEXPORT void JNICALL Java_com_nvidia_fcamerapro_FCamInterface_mergeAllFocus (J
 		jstring filename = (jstring) env->GetObjectArrayElement(filenameArray, i);
 		const char *nameStr = env->GetStringUTFChars(filename, NULL);
 
-		LOG("file name %d: %s", i, nameStr);
 		images[i] = ImageStack::Load::apply(nameStr);
-		LOG("%dx%d %d %d\n", images[i].width, images[i].height, images[i].frames, images[i].channels);
-
 		env->ReleaseStringUTFChars(filename, nameStr);
 	}
+	LOG("[All Focus Merge] Done loading files");
 
 	ImageSet *is = writer->newImageSet();
 	FileFormatDescriptor fmt(FileFormatDescriptor::EFormatJPEG, 95);
 	ImageStack::Image allfocus = AllFocusImageMerge::process(images, size);
+	SharpnessMapProcessor::processDepthMap(images[size-1], allfocus);
+	allfocus = AllFocusImageMerge::process(images, size);
+
+	// do it again, just because we can
+	SharpnessMapProcessor::processDepthMap(images[size-1], allfocus);
+	allfocus = AllFocusImageMerge::process(images, size);
+
+
 	SaveImageStackImage(is, fmt, allfocus);
 	SaveImageStackImage(is, fmt, images[size-1]);
+
 	writer->push(is);
 }
 
@@ -398,6 +410,7 @@ static void OnFileSystemChanged(void) {
 	sAppData->requestQueue.produce(ParamSetRequest(PARAM_PRIV_FS_CHANGED, &value, sizeof(int)));
 }
 
+
 static void SaveImageStackImage(ImageSet *is, FileFormatDescriptor &fmt, ImageStack::Image& image) {
 	FCam::_Frame* f = new FCam::Tegra::_Frame;
 	f->image = FCam::Image(image.width, image.height, FCam::RGB24);
@@ -409,6 +422,18 @@ static void SaveImageStackImage(ImageSet *is, FileFormatDescriptor &fmt, ImageSt
 		}
 	}
 	is->add(fmt, FCam::Frame(f));
+}
+
+static ImageStack::Image frameToImageStackImage(const FCam::Frame &f) {
+	ImageStack::Image image(f.image().width(), f.image().height(), 1, 3); // single frame, 3 channels
+	for (int y = 0; y < image.height; y++) {
+		for (int x = 0; x < image.width; x++) {
+			for (int c = 0; c < image.channels; c++) {
+				((unsigned char*)image(x, y))[c] = (unsigned char)(f.image()(x,y)[c] / 255.f);
+			}
+		}
+	}
+	return image;
 }
 
 static FCam::Frame copyFrame(const FCam::Frame &src) {
@@ -689,11 +714,23 @@ static void *FCamAppThread(void *ptr) {
 	    	}
 	    }
 	    //FOR JASON - grab samples from here!
-	    if(focus_sweep.state == SWEEP_FIN_PHASE)
+	    if(focus_sweep.state == SWEEP_FIN_PHASE && frame.image().valid()) // skips if image is invalid for some reason
 	    {
 	    	LOG("DEPTH sweep fin phase on\n");
 	    	//focus_sweep.getDepthSamples();
-	    	ImageStack::Image depthImage = SharpnessMapProcessor::process(focus_sweep.getDepthSamples(), NUM_RECTS_X, NUM_RECTS_Y, IMAGE_WIDTH, IMAGE_HEIGHT);
+	    	/*
+	    	 * mode
+	    	 */
+	    	//ImageStack::Image depthImage = SharpnessMapProcessor::processSamples(focus_sweep.getDepthSamples(), NUM_RECTS_X, NUM_RECTS_Y, IMAGE_WIDTH, IMAGE_HEIGHT);
+
+	    	/*
+	    	 * take the sharpness as the confidence value
+	    	 */
+	    	ImageStack::Image depthImage = SharpnessMapProcessor::processSampleWithConfidence(focus_sweep.getDepthSamples(), focus_sweep.getSharpnessSamples(),NUM_RECTS_X, NUM_RECTS_Y, IMAGE_WIDTH, IMAGE_HEIGHT);
+
+	    	ImageStack::Image refImage = frameToImageStackImage(frame);
+
+	    	//SharpnessMapProcessor::processDepthMap(depthImage, refImage);
 
 	    	// adds the current frame and the depth map into an imageStack
 	    	FileFormatDescriptor fmt(FileFormatDescriptor::EFormatJPEG, 95);

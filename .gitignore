@@ -7,6 +7,7 @@
 # hidden files
 ##############
 .*
+*.*~
 
 # object files
 ##############

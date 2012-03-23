@@ -6,6 +6,7 @@ import android.app.Activity;
 import android.app.Fragment;
 import android.os.Bundle;
 import android.os.Handler;
+import android.util.Log;
 import android.view.LayoutInflater;
 import android.view.MotionEvent;
 import android.view.View;
@@ -210,12 +211,35 @@ public final class CameraFragment extends Fragment implements OnClickListener, O
 		FCamInterface iface = FCamInterface.GetInstance();
 		if (v == mCaptureButton) {
 			if (!iface.isCapturing()) {
+				// make capture button also work for focus-sweep imaging
+				if (mAutoFocusCheckBox.isChecked() && mTouchActionSpinner.getSelectedItemPosition() == 1) {
+					//iface.enqueueMessageForDepthFocusSweep();
+					
+					ArrayList<FCamShot> shots = new ArrayList<FCamShot>(16);
+					
+					double exposure = iface.getPreviewParam(FCamInterface.PREVIEW_EXPOSURE);
+					double gain = iface.getPreviewParam(FCamInterface.PREVIEW_GAIN);
+					double wb = iface.getPreviewParam(FCamInterface.PREVIEW_WB);
+					
+					for (int i = 0; i < FocusUtils.NUM_INTERVALS; i++) {	
+						FCamShot shot = new FCamShot();
+						shot.exposure = exposure;
+						shot.gain = gain;
+						shot.wb = wb;
+						shot.focus = FocusUtils.discreteDioptres[i];
+						shots.add(shot);
+					}
+					
+					iface.capture(shots);
+					return;
+				}
 				ArrayList<FCamShot> shots = new ArrayList<FCamShot>(16);
 				
 				double exposure = iface.getPreviewParam(FCamInterface.PREVIEW_EXPOSURE);
 				double gain = iface.getPreviewParam(FCamInterface.PREVIEW_GAIN);
 				double wb = iface.getPreviewParam(FCamInterface.PREVIEW_WB);
 				double focus = iface.getPreviewParam(FCamInterface.PREVIEW_FOCUS);
+				Log.d("fcam_iface", "focus: " + focus);
 				
 				FCamShot shot = new FCamShot();
 				shot.exposure = exposure;

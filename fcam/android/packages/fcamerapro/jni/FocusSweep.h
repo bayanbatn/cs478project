@@ -20,8 +20,8 @@
 #define SWEEP_PHASE 			1
 #define WAIT_PHASE 				0
 //Max number of areas to focus
-#define NUM_RECTS_X 			27
-#define NUM_RECTS_Y 			18
+#define NUM_RECTS_X 			36
+#define NUM_RECTS_Y 			27
 #define CONTRAST_THRESHOLD 		35000
 
 typedef unsigned char uchar;
@@ -42,11 +42,12 @@ public:
        bool update(const FCam::Frame &f);
 
        int** getDepthSamples();
+       int** getSharpnessSamples();
        // State - ranges from face detection (2), focus sweep (1), and waiting (0)
        int state;
        //std::vector<point3d> samples;
        int** samples;
-
+       int** samples2;
 private:
 
        /* Private method */
