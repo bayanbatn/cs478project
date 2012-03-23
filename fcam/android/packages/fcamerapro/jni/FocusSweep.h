@@ -42,11 +42,12 @@ public:
        bool update(const FCam::Frame &f);
 
        int** getDepthSamples();
+       int** getSharpnessSamples();
        // State - ranges from face detection (2), focus sweep (1), and waiting (0)
        int state;
        //std::vector<point3d> samples;
        int** samples;
-
+       int** samples2;
 private:
 
        /* Private method */

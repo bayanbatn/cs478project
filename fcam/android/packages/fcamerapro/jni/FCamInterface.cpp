@@ -674,7 +674,16 @@ static void *FCamAppThread(void *ptr) {
 	    {
 	    	LOG("DEPTH sweep fin phase on\n");
 	    	//focus_sweep.getDepthSamples();
-	    	ImageStack::Image depthImage = SharpnessMapProcessor::processSamples(focus_sweep.getDepthSamples(), NUM_RECTS_X, NUM_RECTS_Y, IMAGE_WIDTH, IMAGE_HEIGHT);
+	    	/*
+	    	 * mode
+	    	 */
+	    	//ImageStack::Image depthImage = SharpnessMapProcessor::processSamples(focus_sweep.getDepthSamples(), NUM_RECTS_X, NUM_RECTS_Y, IMAGE_WIDTH, IMAGE_HEIGHT);
+
+	    	/*
+	    	 * take the sharpness as the confidence value
+	    	 */
+	    	ImageStack::Image depthImage = SharpnessMapProcessor::processSampleWithConfidence(focus_sweep.getDepthSamples(), focus_sweep.getSharpnessSamples(),NUM_RECTS_X, NUM_RECTS_Y, IMAGE_WIDTH, IMAGE_HEIGHT);
+
 	    	ImageStack::Image refImage = frameToImageStackImage(frame);
 
 	    	//SharpnessMapProcessor::processDepthMap(depthImage, refImage);
