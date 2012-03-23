@@ -366,6 +366,14 @@ JNIEXPORT void JNICALL Java_com_nvidia_fcamerapro_FCamInterface_mergeAllFocus (J
 	SharpnessMapProcessor::processDepthMap(images[size-1], allfocus);
 	allfocus = AllFocusImageMerge::process(images, size);
 
+	SharpnessMapProcessor::processDepthMap(images[size-1], allfocus);
+	allfocus = AllFocusImageMerge::process(images, size);
+
+	SharpnessMapProcessor::processDepthMap(images[size-1], allfocus);
+	allfocus = AllFocusImageMerge::process(images, size);
+
+	SharpnessMapProcessor::processDepthMap(images[size-1], allfocus);
+	allfocus = AllFocusImageMerge::process(images, size);
 
 	SaveImageStackImage(is, fmt, allfocus);
 	SaveImageStackImage(is, fmt, images[size-1]);

@@ -69,7 +69,7 @@ static int findConfidenceDepth(int** list, int** sharpnessvalue, int width, int 
 		}
 	}
 
-/*
+
 	int maxSum = sum[0], maxInd = 0;
 		for (int i = 1; i < NUM_INTERVALS; i++) {
 			if (maxSum < sum[i]) {
@@ -77,7 +77,7 @@ static int findConfidenceDepth(int** list, int** sharpnessvalue, int width, int 
 				maxInd = i;
 			}
 		}
-*/
+/*
 
 	int maxSum = sum[0]*count[0], maxInd = 0;
 	for (int i = 1; i < NUM_INTERVALS; i++) {
@@ -86,7 +86,7 @@ static int findConfidenceDepth(int** list, int** sharpnessvalue, int width, int 
 			maxInd = i;
 		}
 	}
-
+*/
 	return maxInd;
 }
 
@@ -151,6 +151,6 @@ void SharpnessMapProcessor::processDepthMap(ImageStack::Image &depthmap, ImageSt
 	// first sharpen the reference image to enhance the edges
 	//reference = ImageStack::BilateralSharpen::apply(reference, .2, .7, 5);
 	// use the reference image to apply bilateral filter
-	ImageStack::JointBilateral::apply(depthmap, reference, 20, 20, 1, 0.2);
+	ImageStack::JointBilateral::apply(depthmap, reference, 50, 50, 1, 0.05);
 }
 
