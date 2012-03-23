@@ -1,0 +1,66 @@
+<?xml version="1.0" encoding="utf-8"?>
+<FrameLayout xmlns:android="http://schemas.android.com/apk/res/android"
+	android:layout_width="match_parent" android:layout_height="match_parent">
+
+	<LinearLayout android:id="@+id/editor_preview"
+		android:orientation="vertical" android:layout_width="match_parent"
+		android:layout_height="match_parent">
+
+	    <LinearLayout android:layout_width="match_parent"
+			android:layout_height="@dimen/editor_main_board_height" 
+			android:layout_marginLeft="@dimen/big_margin"
+			android:layout_marginTop="@dimen/big_margin"
+			android:layout_gravity="center" >
+			
+	        <FrameLayout android:layout_width="@dimen/editor_main_view_width"
+				android:layout_height="match_parent" 
+				android:layout_marginLeft="@dimen/big_margin"
+				android:layout_marginTop="@dimen/big_margin">
+			
+				<ImageView android:id="@+id/editor_view" android:layout_width="@dimen/editor_image_width" 
+				      	   android:layout_height="@dimen/editor_image_height" android:layout_gravity="center" 
+				      	   android:scaleType="fitCenter"/>
+				
+				<ProgressBar android:id="@+id/editor_busy"
+					android:layout_width="wrap_content" android:layout_height="wrap_content"
+					android:layout_gravity="center" android:indeterminate="true"
+					style="?android:attr/progressBarStyleLarge" />
+				
+			</FrameLayout>
+			
+	        <LinearLayout android:layout_width="match_parent"
+				android:layout_height="match_parent" android:orientation="horizontal"	
+				android:layout_marginLeft="@dimen/big_margin"
+				android:layout_marginTop="@dimen/big_margin"
+				android:layout_gravity="center">
+				
+	            <TextView style="@style/elem_values" android:text="Focus" />
+				<TextView android:id="@+id/tv_focus" style="@style/elem_values"
+					android:text="10cm" />
+	
+				<SeekBar android:id="@+id/sb_focus" android:layout_width="200dp"
+					android:layout_height="wrap_content" android:layout_gravity="center"
+					android:layout_marginRight="@dimen/big_margin" />	  
+					
+				<Button android:id="@+id/button_blur" android:text="Blur!" 
+				    android:layout_marginRight="@dimen/big_margin" android:layout_width="80dp"
+					android:layout_height="80dp" android:layout_gravity="center"/>
+				
+	        </LinearLayout>
+			    
+		</LinearLayout>>
+	    
+		<LinearLayout android:layout_height="match_parent"
+			android:layout_width="match_parent" android:layout_weight="0.5">
+			<Gallery android:id="@+id/editor_stack_gallery"
+				android:layout_width="match_parent" android:layout_height="wrap_content"
+				android:layout_gravity="center" />
+		</LinearLayout>
+
+	</LinearLayout>
+
+
+	<WebView android:id="@+id/editor_large_preview"
+		android:layout_height="match_parent" android:layout_width="match_parent"
+		android:visibility="invisible" />
+</FrameLayout>

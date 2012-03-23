@@ -213,6 +213,7 @@ public final class FCamInterface {
 	public native void enqueueMessageForAutofocus();
 	public native void enqueueMessageForAutofocusSpot(float x, float y);
 	public native void enqueueMessageForDepthFocusSweep();
+	public native void enqueueMessageForImageBlur(String origImage, String depthImage, float focusDepth);
 	/* [CS478] Assignment #2
 	 * Add a new declaration for a method that requests a photograph
 	 * that is created by merging a flash and no-flash image pair. The

@@ -48,21 +48,8 @@
  */
 #define PARAM_AUTO_FOCUS_GLOBAL			18
 #define PARAM_DEPTH_FOCUS_SWEEP			19
-// TODO TODO TODO
-// TODO TODO TODO
-// TODO TODO TODO
-// TODO TODO TODO
-// TODO TODO TODO
+#define PARAM_IMAGE_BLUR				20
 
-/* [CS478]
- * It might be necessary to add another message type to handle
- * face-based autofocus. Do so here.
- */
-// TODO TODO TODO
-// TODO TODO TODO
-// TODO TODO TODO
-// TODO TODO TODO
-// TODO TODO TODO
 #define PARAM_PRIV_FS_CHANGED     100
 
 #define SHOT_PARAM_EXPOSURE 0
@@ -77,6 +64,19 @@ public:
 		m_id = -1;
 		m_dataSize = 0;
 		m_data = 0;
+		m_aux_data = 0;
+		m_aux_float = 0;
+	}
+
+	ParamSetRequest(int param, const void *str1, const void *str2, int data_size, float depth) {
+		m_id = param;
+		/* Init data */
+		if (str1 != 0 && str2 != 0){
+			m_data = (uchar*) str1;
+			m_dataSize = data_size;
+			m_aux_data = (uchar*) str2;
+		}
+		m_aux_float = depth;
 	}
 
 	ParamSetRequest(int param, const void *data, int dataSize) {
@@ -84,25 +84,44 @@ public:
 		m_dataSize = dataSize;
 		m_data = new uchar[m_dataSize];
 		if (data != 0) memcpy(m_data, data, m_dataSize);
+		m_aux_data = 0;
+		m_aux_float = 0;
 	}
 
 	ParamSetRequest(const ParamSetRequest &instance) {
 		// copy constructor
 		m_id = instance.m_id;
 		m_dataSize = instance.m_dataSize;
+		m_aux_float = instance.m_aux_float;
 		m_data = new uchar[m_dataSize];
 		memcpy(m_data, instance.m_data, m_dataSize);
+		m_aux_data = 0;
+		if (instance.m_aux_data != 0){
+			int aux_data_len = strlen(((char*)instance.m_aux_data)) + 1;
+			m_aux_data = new uchar[aux_data_len];
+			memcpy(m_aux_data, instance.m_aux_data, aux_data_len);
+		}
 	}
 
 	ParamSetRequest &operator=(const ParamSetRequest &instance) {
 		m_id = instance.m_id;
 		m_dataSize = instance.m_dataSize;
+		m_aux_float = instance.m_aux_float;
 		if (m_data != 0) {
 			delete [] m_data;
+		}
+		if (m_aux_data != 0) {
+			delete [] m_aux_data;
+			m_aux_data = 0;
 		}
 
 		m_data = new uchar[m_dataSize];
 		memcpy(m_data, instance.m_data, m_dataSize);
+		if (instance.m_aux_data != 0){
+			int aux_data_len = strlen(((char*)instance.m_aux_data)) + 1;
+			m_aux_data = new uchar[aux_data_len];
+			memcpy(m_aux_data, instance.m_aux_data, aux_data_len);
+		}
 
 		return *this;
 	}
@@ -111,6 +130,8 @@ public:
 		if (m_data != 0) {
 			delete [] m_data;
 		}
+		if (m_aux_data != 0)
+			delete[] m_aux_data;
 	}
 
 	int getId(void) {
@@ -129,10 +150,20 @@ public:
 		return m_dataSize;
 	}
 
+	uchar *getAuxData(void){
+		return m_aux_data;
+	}
+
+	float getAuxFloat(void){
+		return m_aux_float;
+	}
+
 private:
 	int m_id;
 	uchar *m_data; // serialized param value
 	int m_dataSize;
+	uchar *m_aux_data;
+	float m_aux_float;
 };
 
 

@@ -372,8 +372,6 @@ public final class CameraFragment extends Fragment implements OnClickListener, O
 		if (v == mCameraView && event.getActionMasked() == MotionEvent.ACTION_DOWN
 				&& mAutoFocusCheckBox.isChecked()) {
 			FCamInterface iface = FCamInterface.GetInstance();
-			float y;
-			float x;
 			switch(mTouchActionSpinner.getSelectedItemPosition()){
 			case 0: 
 				iface.enqueueMessageForAutofocus();
