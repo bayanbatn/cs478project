@@ -11,7 +11,7 @@
 
 //#define SIGMA_SCALE 0.9 //TODO tune this
 #define NUM_BLUR_LEVELS 4
-#define CLTS_const 0.4; //10mm
+#define CLTS_const 1.3; //10mm
 
 static const float sigmas[] = {0.2, 0.4, 1.6, 6.4}; //TODO tune this
 
@@ -24,7 +24,7 @@ public:
 		doBlurImage = false;
 	}
 
-	//don't call this
+	//helper
 	void printImagePath(ImageStack::Image gauss1, ImageStack::Image gauss2, ImageStack::Image final){
 		std::ostringstream oss;
 
@@ -90,7 +90,7 @@ public:
 		ImageStack::FastBlur::apply(gauss1, sigmas[0], sigmas[0], 0.0f);
 		ImageStack::FastBlur::apply(gauss2, sigmas[1], sigmas[1], 0.0f);
 		ImageStack::FastBlur::apply(gauss3, sigmas[2], sigmas[2], 0.0f);
-		ImageStack::FastBlur::apply(gauss4, sigmas[3], sigmas[3], 0.0f);//TODO might have to square this?
+		ImageStack::FastBlur::apply(gauss4, sigmas[3], sigmas[3], 0.0f);
 
 		LOG("DEPTH Blur fast blur without problem\n");
 		float inv_focus = 1/focusDepth;
@@ -100,17 +100,14 @@ public:
 		for (int y = 0; y < original.height; y++) {
 			for (int x = 0; x < original.width; x++) {
 				//unsigned char t = depthMap(x,y)[0];
-				float tmp = depthMap(x,y)[0];
-				if (tmp < 0.08f) tmp = 0.1f;
-				//float blur_radius = fabs(focusDepth - tmp);
-				//blur_radius = blur_radius / focusDepth;
-				float blur_radius = 1.0f + 0.1f * (1/tmp - inv_focus);
-				blur_radius = fabs(blur_radius);
+				float true_depth = depthMap(x,y)[0];
+				if (true_depth < 0.08f) true_depth = 0.1f;
+				float blur_radius = fabs(1.3f * (1/true_depth - inv_focus));
 
 				float w1=0.0f; float w2=0.0f;
 				ImageStack::Image *blur1, *blur2;
 
-				if (x <= 10 && y <= 10) LOG("DEPTH blur radius is: %f, tmp: %f, inv_focus: %f\n", blur_radius, tmp, inv_focus);//if (x == 0 && y == 0)
+				if (x <= 10 && y <= 10) LOG("DEPTH blur radius is: %f, tmp: %f, inv_focus: %f\n", blur_radius, true_depth, inv_focus);//if (x == 0 && y == 0)
 
 				if (blur_radius < sigmas[0]){
 					w2 = blur_radius / sigmas[0];
