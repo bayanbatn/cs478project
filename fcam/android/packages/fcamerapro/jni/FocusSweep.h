@@ -20,8 +20,8 @@
 #define SWEEP_PHASE 			1
 #define WAIT_PHASE 				0
 //Max number of areas to focus
-#define NUM_RECTS_X 			27
-#define NUM_RECTS_Y 			18
+#define NUM_RECTS_X 			36
+#define NUM_RECTS_Y 			27
 #define CONTRAST_THRESHOLD 		35000
 
 typedef unsigned char uchar;

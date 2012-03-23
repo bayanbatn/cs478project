@@ -8,8 +8,6 @@
 #include "FocusUtil.h"
 
 
-static void calibrate() {}
-
 static float interpolateDepth(float** list, int width, int height, int w, int h) {
 
 	float convo[9] = {1,2,1,2,4,2,1,2,1};
@@ -84,7 +82,7 @@ ImageStack::Image SharpnessMapProcessor::processSamples(int** list, int width, i
 
 void SharpnessMapProcessor::processDepthMap(ImageStack::Image &depthmap, ImageStack::Image &reference) {
 	// first sharpen the reference image to enhance the edges
-	reference = ImageStack::BilateralSharpen::apply(reference, .2, .7, 5);
+	//reference = ImageStack::BilateralSharpen::apply(reference, .2, .7, 5);
 	// use the reference image to apply bilateral filter
 	ImageStack::JointBilateral::apply(depthmap, reference, 20, 20, 1, 0.2);
 }

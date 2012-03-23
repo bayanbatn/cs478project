@@ -361,6 +361,11 @@ JNIEXPORT void JNICALL Java_com_nvidia_fcamerapro_FCamInterface_mergeAllFocus (J
 	SharpnessMapProcessor::processDepthMap(images[size-1], allfocus);
 	allfocus = AllFocusImageMerge::process(images, size);
 
+	// do it again, just because we can
+	SharpnessMapProcessor::processDepthMap(images[size-1], allfocus);
+	allfocus = AllFocusImageMerge::process(images, size);
+
+
 	SaveImageStackImage(is, fmt, allfocus);
 	SaveImageStackImage(is, fmt, images[size-1]);
 
@@ -672,7 +677,7 @@ static void *FCamAppThread(void *ptr) {
 	    	ImageStack::Image depthImage = SharpnessMapProcessor::processSamples(focus_sweep.getDepthSamples(), NUM_RECTS_X, NUM_RECTS_Y, IMAGE_WIDTH, IMAGE_HEIGHT);
 	    	ImageStack::Image refImage = frameToImageStackImage(frame);
 
-	    	SharpnessMapProcessor::processDepthMap(depthImage, refImage);
+	    	//SharpnessMapProcessor::processDepthMap(depthImage, refImage);
 
 	    	// adds the current frame and the depth map into an imageStack
 	    	FileFormatDescriptor fmt(FileFormatDescriptor::EFormatJPEG, 95);
