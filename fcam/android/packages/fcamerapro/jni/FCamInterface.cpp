@@ -484,6 +484,8 @@ static void *FCamAppThread(void *ptr) {
     LOG("DEPTH calling focus sweep constructor1 \n");
     FocusSweep focus_sweep(&lens);
     BlurTool blurTool;
+	ImageSet *is; // writer is a global instance of AsyncImageWriter already defined
+	FCam::Frame frame;
 
     char* original;
     char* depth;
@@ -620,12 +622,15 @@ static void *FCamAppThread(void *ptr) {
 				LOG("DEPTH focus sweep request end\n");
 				break;
 			case PARAM_IMAGE_BLUR:
-				LOG("DEPTH Image blur 1\n");
-				//todo apply blur
 				original = (char *) task.getData();
 				depth = (char *) task.getAuxData();
 				focusDepth = task.getAuxFloat();
-				blurTool.doBlurImage = true;
+				is = writer->newImageSet(); // writer is a global instance of AsyncImageWriter already defined
+				frame = blurTool.blurImage(original, depth, focusDepth);
+
+				//Copy original image and save
+				is->add(FileFormatDescriptor::EFormatJPEG, frame);
+				writer->push(is);
 				LOG("DEPTH Image blur file path %s and %s\n", original, depth);
 				break;
 			default:
@@ -697,7 +702,7 @@ static void *FCamAppThread(void *ptr) {
 	    }
 
 	    //Blur Tool Phase
-	    if(blurTool.doBlurImage)
+	    /* if(blurTool.doBlurImage)
 	    {
 			ImageSet *is = writer->newImageSet(); // writer is a global instance of AsyncImageWriter already defined
 			FCam::Frame frame = blurTool.blurImage(original, depth, focusDepth);
@@ -706,7 +711,7 @@ static void *FCamAppThread(void *ptr) {
 			is->add(FileFormatDescriptor::EFormatJPEG, frame);
 			writer->push(is);
 			blurTool.doBlurImage = false;
-	    }
+	    }*/
 
 	    // Update histogram data
 	    const FCam::Histogram &histogram = frame.histogram();
