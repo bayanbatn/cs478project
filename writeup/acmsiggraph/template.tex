@@ -100,7 +100,7 @@ This gives us our first approximate depth map, as shown in Figure ~\ref{fig:filt
 \centering
 \includegraphics[width=3in]{images/refined-depth-map.jpg}
 \caption{Depth Map Refined with All-in-Focus Image once}
-\label{fig:depth-map-refined}
+\label{fig:refined-depth-map}
 \end{figure}
 
 \begin{figure}
@@ -135,7 +135,7 @@ p_{i,j} &:=& images[ d ]( (C_d v)_x, (C_d v)_y)
 \begin{figure}
 \centering
 \includegraphics[width=3in]{images/all-focus-calibrated.jpg}
-\caption{Comparing all-in-focus images before calibration (left) and after (right). Notice the curve on the flashlight's edge on the right is corrected.}
+\caption{Comparing all-in-focus images before calibration (right) and after (left). Notice the curve on the flashlight's edge on the right is corrected.}
 \label{fig:all-focus-calibrated}
 \end{figure}
 
@@ -154,7 +154,8 @@ The result is mainly depended on the quality of depth map.  The following images
 
 \begin{figure}[h!]
    \centering
-   \includegraphics[height=2.0in]{images/merged}
+       \includegraphics[width=3in]{images/merged}
+%   \includegraphics[height=2.0in]{images/merged}
    \caption{Example result: merged image}
 \end{figure}
 
