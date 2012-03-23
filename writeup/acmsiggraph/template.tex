@@ -149,7 +149,8 @@ by the DOF map to generate a realistic looking DOF.
 
 Our synthetic DOF application requires an all-in-focus image as well as a DOF map. Given these two, we can accept any arbitrary focal length,
 and generate an image with an "accurate" amount of blur (since we do not model some effects of focal length change, such as magnification,  the
-generated is not hundred percent accurate). We use the following equation to calculate the appropriate blur radius of a pixel, given
+generated is not hundred percent accurate. Furthermore, we can certain assumptions, such as circular aperture, that make the synthetic blurring 
+process simpler) (make this footnote?). We use the following equation to calculate the appropriate blur radius of a pixel, given
 the new focal length: 
 
 \begin{eqnarray} 
@@ -177,7 +178,8 @@ R&=&s\frac{D}{2}[\frac{1}{f}-\frac{1}{f_{0}}], or
 R&\propto&\frac{1}{f}-\frac{1}{f_{0}}
 \end{eqnarray}
  
-Since $s$ and $D$ are intrinsic camera constants, we are not interested in them. Furthermore, 
+Since $s$ and $D$ are intrinsic camera constants, we are not interested in them. Furthermore, in our end application, we wish allow the users to
+choose their degree of synthetic blur. Consequently, we do not require calibration to measure $D$ and $s$. 
 
 \subsubsection{Image Merging and Insertion}
 
