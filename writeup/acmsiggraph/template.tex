@@ -21,7 +21,8 @@
 
 \title{Mobile Depth from Focus and Applications}
 
-\author{Naran Bayanbat\thanks{e-mail:jasonch@stanford.edu}\\Stanford University \and Jason Chen\thanks{e-mail:jasonch@stanford.edu} \\Stanford University \and Chun-Wei Lee\thanks{e-mail:jasonch@stanford.edu} \\Stanford University}
+%\author{Naran Bayanbat\thanks{e-mail:naranb@stanford.edu}\\Stanford University \and Jason Chen\thanks{e-mail:jasonch@stanford.edu} \\Stanford University \and Chun-Wei Lee\thanks{e-mail:chunweil@stanford.edu} \\Stanford University}
+\author{Naran Bayanbat\\naranb@stanford.edu\\Stanford University \and Jason Chen\\jasonch@stanford.edu\\Stanford University \and Chun-Wei Lee\\chunweil@stanford.edu\\Stanford University}
 \pdfauthor{Naran Bayanbat, Jason Chen, Chun-Wei Lee}
 
 \keywords{depth from focus, depth map, tablet, computational photography}
@@ -30,7 +31,7 @@
 
  \teaser{
    \includegraphics[height=1.5in]{images/sampleteaser}
-   \caption{Spring Training 2009, Peoria, AZ.}
+   %\caption{}
  }
 
 \maketitle
@@ -57,9 +58,27 @@ Mobile devices have become the most common photography means, and they have pres
 
 \section{Prior Work}
 
-Depth from Focus is a technique that has been studied for decades \cite{Grossmann1987} and with numerous applications \cite{mobileRobot}.  It is useful 
+Depth from Focus is a technique that has been studied for decades \cite{Grossmann1987} and with numerous applications \cite{mobileRobot}.  ...
 
 \section{Results}
+
+\subsection{Depth Sampling}
+At each focus distance, we densely sampled 36x27 patches ...    sobel filter... threshold...
+
+\subsection{Depth Map Generation}
+
+After obtaining the best focus distance and best sharpness pair for each sample point, we first attempt to correct for points sampled at 
+
+we first naively assume the entire patch exists at the same depth, thus generating a blocky depth map as in ~\ref{fig:initial-depth-map}. Then we processed each 
+
+interpolate... mode... bilateral sharpen.. joint bilateral...
+
+\subsection{All-in-Focus Imaging}
+
+
+
+\subsection{Synthetic Depth of Field Application}
+
 
 \section{Concolusions and Further Works}
 
