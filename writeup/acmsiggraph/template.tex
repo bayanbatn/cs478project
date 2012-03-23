@@ -59,12 +59,22 @@ Mobile devices have become the most common photography means, and they have pres
 
 \section{Prior Work}
 
-Depth from Focus is a technique that has been studied for decades \cite{Grossmann1987} and with numerous applications \cite{mobileRobot}.  ...
+Depth from Focus is a technique that has been studied for decades \cite{Grossmann1987} \cite{pyramid} and with numerous applications, as it is relatively easy to compute and implement and requires no additional hardware.  It is also flexible and can be adjusted for real-time, low resolution depth map \cite{mobileRobot} as well as more detailed depth maps.
 
 \section{Results}
 
 \subsection{Depth Sampling}
-At each focus distance, we densely sampled 36x27 patches ...    sobel filter... threshold...
+At each focus distance, we densely sampled 36x27 square patches of width 30 pixels and calculate the sharpness of each patch.  We tried many different sharpness measures, starting with a simple high pass filter to the Sobel edge detection filter.  After evaluating the results, we concluded Sobel edge detection filter produces the best results. Sobel filter is composed of the horizontal box filter, $G_x$, and the vertical box filter, $G_y$, which are 
+\[
+G_x = \begin{bmatrix} -1 & 0 & 1 \\ -2 & 0 & 2 \\ -1 & 0 & 1 \end{bmatrix}
+G_y = \begin{bmatrix} -1 & -2 & -1 \\ 0 & 0 & 0 \\ 1 & 2 & 1 \end{bmatrix}
+\]. For each pixel in the image at $(i,j)$, we compute its sharpness value $l_{x,y}$ as 
+\begin{eqnarray}
+gx &:=& G_x * I_d[i,j] \nonumber \\
+gy &:=& G_y * I_d[j,i] \nonumber \\
+l_{i,j} &:=& gx^2 + gy^2 
+\end{eqnarray}, where $gx$ is the resulting value after applying the Sobel horizontal box filter, and $gy$ the vertical box filter. Finally, the sharpness $\lambda_{x,y}$ to be the sum of all pixel sharpness $l$ within the patch. \\
+As we sweep across different focus distances, we record only the current maximum sharpness and the focus distance at which this is obtained for each sample point. We make the assumption that an object exists at the distance which produces the maximum sharpness response.  Prior works have attempted to interpolate the response curve and estimate the true maximum \cite{Grossmann1987}, but we decided this is unnecessary for our applications and too much computation on a mobile device. 
 
 \subsection{Depth Map Generation}
 \label{sec:depthmap-generation}
@@ -93,6 +103,8 @@ p_{i,j} &:=& images[ d ]( (C_d v)_x, (C_d v)_y)
 \section{Concolusions and Further Works}
 
 \subsection{Lighting and Shadows}
+One prominent problem with our approach is when the image has strong shadows or specular highlights.  These features produce strong edges in the color space, and thus bilateral filtering may assert a different depth value to these section, even though they should be the same.  This is a difficult problem to solve and is present with other attempts of depth from focus \cite[Grossmann1987] and other unaided image segmentation algorithms.  The best solution to alleviate this problem, if we had more time to implement, is to provide an interface for user feedback and lower the confidence of these segments entirely. 
+
 
 \section*{Acknowledgements}
 
