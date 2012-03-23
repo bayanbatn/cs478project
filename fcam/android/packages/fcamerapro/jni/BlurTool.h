@@ -11,7 +11,7 @@
 
 //#define SIGMA_SCALE 0.9 //TODO tune this
 #define NUM_BLUR_LEVELS 4
-#define CLTS_const 0.4; //10mm
+#define CLTS_const 2.5; //10mm
 
 static const float sigmas[] = {0.2, 0.4, 1.6, 6.4}; //TODO tune this
 
@@ -104,7 +104,7 @@ public:
 				if (tmp < 0.08f) tmp = 0.1f;
 				//float blur_radius = fabs(focusDepth - tmp);
 				//blur_radius = blur_radius / focusDepth;
-				float blur_radius = 1.0f + 0.1f * (1/tmp - inv_focus);
+				float blur_radius = 2.5f * (1/tmp - inv_focus);
 				blur_radius = fabs(blur_radius);
 
 				float w1=0.0f; float w2=0.0f;
