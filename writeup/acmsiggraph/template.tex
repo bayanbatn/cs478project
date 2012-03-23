@@ -142,24 +142,15 @@ p_{i,j} &:=& images[ d ]( (C_d v)_x, (C_d v)_y)
 
 \subsection{Synthetic Depth of Field Application}
 
-A reverse application of an all-in-focus image would be to create images with synthetic depth-of-field effect. A common use of this would be 
-to create an artificial shallow depth-of-field in an image for artistic effect. Yet another application would be to create the "miniature model" effect
-in images, to create the look and feel of a smaller scene than the one present in reality. Fortunately, we can leverage on the information provided
-by the DOF map to generate a realistic looking DOF. 
+A reverse application of an all-in-focus image would be to create images with synthetic depth-of-field effect. A common use of this would be to create an artificial shallow depth-of-field in an image for artistic effect. Yet another application would be to create the "miniature model" effect in images, to create the look and feel of a smaller scene than the one present in reality. Fortunately, we can leverage on the information provided by the DOF map to generate a realistic looking DOF. 
 
-Our synthetic DOF application requires an all-in-focus image as well as a DOF map. Given these two, we can accept any arbitrary focal length,
-and generate an image with an "accurate" amount of blur (since we do not model some effects of focal length change, such as magnification,  the
-generated is not hundred percent accurate. Furthermore, we can certain assumptions, such as circular aperture, that make the synthetic blurring 
-process simpler) (make this footnote?). We use the following equation to calculate the appropriate blur radius of a pixel, given
-the new focal length: 
+Our synthetic DOF application requires an all-in-focus image as well as a DOF map. Given these two, we can accept any arbitrary focal length, and generate an image with an "accurate" amount of blur (since we do not model some effects of focal length change, such as magnification,  the generated is not hundred percent accurate. Furthermore, we can certain assumptions, such as circular aperture, that make the synthetic blurring process simpler) (make this footnote?). We use the following equation to calculate the appropriate blur radius $R$ of a pixel, given the new focal length: 
 
 \begin{eqnarray} 
 R=s\frac{D}{2}[\frac{1}{f}-\frac{1}{u}-\frac{1}{s}]
 \end{eqnarray}
 
-where $f$, $u$, $s$, and $D$ are focal length, distance to object from lens, distance to the image plane from lens, and the lens diameter, 
-respectively (Murali Subbarao). Here, $s$ and $D$ are camera specific constants. For each pixel, we can estimate a zero blur radius focal length
-from the depth map:
+where $f$, $u$, $s$, and $D$ are the new focal length, the distance to object from lens, the distance to the image plane from lens, and the lens diameter, respectively (Murali Subbarao). Here, $s$ and $D$ are camera specific constants. Now, let us use the depth field information. Given the depth field, for each pixel, we can estimate the focal length that gives us a zero blur radius: 
 
 \begin{eqnarray} 
 0&=&s\frac{D}{2}[\frac{1}{f_{0}}-\frac{1}{u}-\frac{1}{s}], which results in
@@ -178,8 +169,16 @@ R&=&s\frac{D}{2}[\frac{1}{f}-\frac{1}{f_{0}}], or
 R&\propto&\frac{1}{f}-\frac{1}{f_{0}}
 \end{eqnarray}
  
-Since $s$ and $D$ are intrinsic camera constants, we are not interested in them. Furthermore, in our end application, we wish allow the users to
-choose their degree of synthetic blur. Consequently, we do not require calibration to measure $D$ and $s$. 
+Since $s$ and $D$ are intrinsic constants of the camera, we are not interested in them. Furthermore, in our application, we wish allow the users to customize the degree of synthetic blur. Consequently, we do not require calibration to measure $D$ and $s$. 
+
+To generate an image with spatially varying amounts of blur, we use interpolation. We generate several copies of the original image, all of which are uniformly Gaussian blurred at different standard deviation values. In the final image, at each pixel, we determine the size of the blur radius first. We then interpolate the pixel value from two of the Gaussian blurred images. Given: 
+
+\begin{eqnarray} 
+\sigma_{xy}^{\star}&=&k_{1}\sigma_{xy}^{(i)}+k_{2}\sigma_{xy}^{(i+1)}, we interpolate
+Img(x,y)&=&k_{1}Gauss_{i}(x,y)+k_{2}Gauss_{i+1}(x,y)
+\end{eqnarray}
+
+where $\sigma_{xy}^{\star}$ is the desired blur kernel, and $\sigma_{xy}^{(i)}$ and $\sigma_{xy}^{(i+1)}$ are the standard deviation values of the precomputed gaussian blurred images. 
 
 \subsubsection{Image Merging and Insertion}
 
@@ -220,6 +219,7 @@ One prominent problem with our approach is when the image has strong shadows or 
 
 
 \section*{Acknowledgements}
+(Note: Should acknowledge the CS478 teaching staff for advice and consultation on the project). 
 
 
 \bibliographystyle{acmsiggraph}
