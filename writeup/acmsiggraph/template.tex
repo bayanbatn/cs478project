@@ -67,18 +67,28 @@ Depth from Focus is a technique that has been studied for decades \cite{Grossman
 At each focus distance, we densely sampled 36x27 patches ...    sobel filter... threshold...
 
 \subsection{Depth Map Generation}
-
+\label{sec:depthmap-generation}
 One of the inherent problem in sharpness calculations, as well as in all focusing methods in general, is that they fail on textureless surfaces.  Therefore, after obtaining the best focus distance and best sharpness pair, $<d_i, \lambda_i>$, for each sample point, we first correct for points sampled at low texture patches.  Every sample point whose sharpness is below some predefined threshold, $\Lambda$, will update its sharpness by finding the most common depth value in the patches around it.  This is achieved by a simple voting scheme: each of the nine pixels will cast a vote for the depth value it represents, and its vote is weighted by its confidence, which is the normalized sharpness value. \\
 Then, we simply naively assume the entire patch exists at the same depth, thus generating a blocky depth map as in ~\ref{fig:initial-depth-map} of the same dimension as the input image. Next, we take a full-colored frame from the input stack as reference image, and use joint bilateral filtering to smooth out the patch boundaries.  This is because we want fairly aggressive smoothing while preserving edges from the color space. \\
 This gives us our first approximate depth map, as shown in ~\ref{fig:filtered-depth-map}.  We quickly realized that any frame we could choose from the stack could not serve as a good edge reference, because at least some part of the image is out of focus.  We can solve the problem if we had an all-in-focus image, but we could only get a good all-in-focus image if we had a better depth map.  To solve this problem, we iteratively refined our depth map by generating all-in-focus image based on the current depth map ~\ref{fig:depth-map-refining}.  This provides us highly accurate depth map with clear object edges.
 
 \subsection{All-in-Focus Imaging}
 
+One application of having an image stack and an approximate depth map is to produce all-in-focus images.  As mentioned in section ~\ref{sec:depthmap-generation}, an all-in-focus image can also be used to further improve our depth map.  The algorithm to generate all-in-focus images is simple and intuitive.  For each pixel on the final image, we simply sample from the image in the stack as indicated by the closest depth value. I.e., for each pixel $p_{i,j}$, 
+\begin{equation} 
+p_{i,j} := images[ depthmap_{i,j} ](i,j)
+\end{equation}, where images is image stack represented as an array, and depthmap returns values which are indices into the array.  
 \subsubsection{Calibration}
-
+There is a subtle problem to solve when merging images at different focus distances: each focus distance has a slight optical magnification.  Images taken at closer focus distances will be magnified by an amount that is dependent on each lens' manufacturing specification.  Fortunately, since this geometric distortion is consistent across all images taken by the same camera, we can calibrate once just once and store the transformation matrices statically. We use calibration images ~\ref{fig:calibration} and hand-label control points that are corresponding in each pair of images. Since this is a non-reflective similarity transform, only two pairs of control points are necessary for each pair of images.  We compute the transformation matrices using the image with the smallest focus distance as base image.  This is because any coordinate in this image will have a correspondence in farther-focused images, but not vice versa.  Each transformation matrix, $C_d\in R^{3x3}$, transforms homogenized target image coordinates $(x,y,1)$ to the coordinates in the image captured at depth $d$, $(x_d,y_d,1)$. So now we revise the equation to be
+\begin{eqnarray} 
+v &:=& [x,y,1] \nonumber \\
+d &:=& depthmap_{i,j}  \nonumber \\
+p_{i,j} &:=& images[ d ]( (C_d v)_x, (C_d v)_y)
+\end{eqnarray}
 
 \subsection{Synthetic Depth of Field Application}
 
+\subsection{Image Merge and Insertion}
 
 \section{Concolusions and Further Works}
 
