@@ -204,6 +204,7 @@ public class EditorFragment extends Fragment implements FCamInterfaceEventListen
 		} 
 		mEditorLoad.setVisibility(mImageStackManager.getStack(position).isLoadComplete() ? View.INVISIBLE : View.VISIBLE);
 		mSelectedStack = position;
+		mImageStackManager.refreshImageStacks();
 	}
 
 	public void onNothingSelected(AdapterView<?> parent) {
@@ -219,6 +220,7 @@ public class EditorFragment extends Fragment implements FCamInterfaceEventListen
 		} 
 		mEditorLoad.setVisibility(mImageStackManager.getStack(position).isLoadComplete() ? View.INVISIBLE : View.VISIBLE);
 		mSelectedStack = position;
+		mImageStackManager.refreshImageStacks();
 	}
 
 	@Override
@@ -272,11 +274,13 @@ public class EditorFragment extends Fragment implements FCamInterfaceEventListen
 		
 		int progress = mFocusAdjustBar.getProgress();
 		float focus = (float) getFocusFromUI(progress);
+		focus = 1 / focus;
 		
 		String depthFilePath = mImageStackManager.getStack(mSelectedStack).getImage(1).getName();
 		String origFilePath = mImageStackManager.getStack(mSelectedStack).getImage(0).getName();
 		
 		iface.enqueueMessageForImageBlur(origFilePath, depthFilePath, focus);
+		mImageStackManager.refreshImageStacks();
 	}
 	
 }
