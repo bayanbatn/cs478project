@@ -38,5 +38,10 @@
 	<string name="menu_item_merge_stack">Merge Stack</string>
 	<string name="menu_editor">Editor</string>
 	<string name="menu_item_compute_depth">Compute Depthmap</string>
+	<string name="menu_item_insertion">Image Insertion</string>
+	
+	
+	
+
 	
 </resources>

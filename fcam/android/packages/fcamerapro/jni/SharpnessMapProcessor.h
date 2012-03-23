@@ -22,6 +22,7 @@ public:
 	static ImageStack::Image processSampleWithConfidence(int** list, int** values, int width, int height, int targetWidth, int targetHeight);
 	// takes the depthmap and a reference image, uses bilateral filtering to smooth it
 	static void processDepthMap(ImageStack::Image &depthmap, ImageStack::Image &reference);
+	static void processDepthMap2(ImageStack::Image &depthmap, ImageStack::Image &reference,int size,double sigma);
 };
 
 

@@ -16,7 +16,7 @@
 #include "HPT.h"
 #include "SharpnessMapProcessor.h"
 #include "AllFocusImageMerge.h"
-
+#include "ImageInsertion.h"
 #define PREVIEW_IMAGE_WIDTH  640
 #define PREVIEW_IMAGE_HEIGHT 480
 
@@ -340,7 +340,6 @@ JNIEXPORT void JNICALL Java_com_nvidia_fcamerapro_FCamInterface_enqueueMessageFo
 
 JNIEXPORT void JNICALL Java_com_nvidia_fcamerapro_FCamInterface_enqueueMessageForComputeDepthMap(JNIEnv *env, jobject thiz, jobjectArray filenames) {
 	LOG("Compute Depth Map");
-
 }
 
 JNIEXPORT void JNICALL Java_com_nvidia_fcamerapro_FCamInterface_mergeAllFocus (JNIEnv *env, jobject thiz, jobjectArray filenameArray) {
@@ -359,19 +358,45 @@ JNIEXPORT void JNICALL Java_com_nvidia_fcamerapro_FCamInterface_mergeAllFocus (J
 	ImageSet *is = writer->newImageSet();
 	FileFormatDescriptor fmt(FileFormatDescriptor::EFormatJPEG, 95);
 	ImageStack::Image allfocus = AllFocusImageMerge::process(images, size);
+
+
+
 	SharpnessMapProcessor::processDepthMap(images[size-1], allfocus);
 	allfocus = AllFocusImageMerge::process(images, size);
 
-	// do it again, just because we can
 	SharpnessMapProcessor::processDepthMap(images[size-1], allfocus);
 	allfocus = AllFocusImageMerge::process(images, size);
 
+
+	SharpnessMapProcessor::processDepthMap(images[size-1], allfocus);
+	allfocus = AllFocusImageMerge::process(images, size);
+
+	SharpnessMapProcessor::processDepthMap(images[size-1], allfocus);
+	allfocus = AllFocusImageMerge::process(images, size);
+
+
+
+
+/*
+	SharpnessMapProcessor::processDepthMap2(images[size-1], allfocus,50,0.05);
+	allfocus = AllFocusImageMerge::process(images, size);
+
+	SharpnessMapProcessor::processDepthMap2(images[size-1], allfocus,50,0.05);
+	allfocus = AllFocusImageMerge::process(images, size);
+
+	SharpnessMapProcessor::processDepthMap2(images[size-1], allfocus,50,0.05);
+	allfocus = AllFocusImageMerge::process(images, size);
+
+	SharpnessMapProcessor::processDepthMap2(images[size-1], allfocus,50,0.05);
+	allfocus = AllFocusImageMerge::process(images, size);
+*/
 
 	SaveImageStackImage(is, fmt, allfocus);
 	SaveImageStackImage(is, fmt, images[size-1]);
 
 	writer->push(is);
 }
+
 
 JNIEXPORT void JNICALL Java_com_nvidia_fcamerapro_FCamInterface_enqueueMessageForImageBlur(JNIEnv *env, jobject thiz, jstring o1, jstring o2, jfloat focusDepth) {
 	/* [CS478] Assignment #1
@@ -397,6 +422,59 @@ JNIEXPORT void JNICALL Java_com_nvidia_fcamerapro_FCamInterface_enqueueMessageFo
 	env->ReleaseStringUTFChars(o2, depthFileName);
 
 }
+
+
+JNIEXPORT void JNICALL Java_com_nvidia_fcamerapro_FCamInterface_imageInsertion (JNIEnv *env, jobject thiz, jobjectArray filenameArray1, jobjectArray filenameArray2) {
+
+	int size1 = env->GetArrayLength(filenameArray1);
+	ImageStack::Image images1[size1];
+	int size2 = env->GetArrayLength(filenameArray2);
+	ImageStack::Image images2[size2];
+
+	for (int i = 0; i < size1; i++) {
+		jstring filename1 = (jstring) env->GetObjectArrayElement(filenameArray1, i);
+		const char *nameStr = env->GetStringUTFChars(filename1, NULL);
+
+		images1[i] = ImageStack::Load::apply(nameStr);
+		env->ReleaseStringUTFChars(filename1, nameStr);
+	}
+
+
+	for (int i = 0; i < size2; i++) {
+		jstring filename2 = (jstring) env->GetObjectArrayElement(filenameArray2, i);
+		const char *nameStr = env->GetStringUTFChars(filename2, NULL);
+
+		images2[i] = ImageStack::Load::apply(nameStr);
+		env->ReleaseStringUTFChars(filename2, nameStr);
+	}
+
+
+	LOG("[Image Insertion] Done loading files");
+
+
+	ImageSet *is = writer->newImageSet();
+	FileFormatDescriptor fmt(FileFormatDescriptor::EFormatJPEG, 95);
+
+
+	ImageStack::Image allfocus = ImageInsertion::process(images1,images2);
+
+
+	SaveImageStackImage(is, fmt, allfocus);
+	//SaveImageStackImage(is, fmt, images[size-1]);
+
+	writer->push(is);
+
+
+}
+
+
+
+
+
+
+
+
+
 
 }
 

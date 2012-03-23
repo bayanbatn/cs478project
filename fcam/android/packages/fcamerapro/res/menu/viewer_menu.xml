@@ -4,4 +4,5 @@
 		android:icon="@android:drawable/ic_menu_delete" android:showAsAction="always|withText" />
 	<item android:id="@+id/mi_merge" android:title="@string/menu_item_merge_stack" android:icon="@android:drawable/ic_menu_delete"></item>
 	<item android:id="@+id/mi_compute_depth" android:title="@string/menu_item_compute_depth" android:icon="@android:drawable/ic_menu_delete"></item>
+	<item android:id="@+id/mi_insertion" android:title="@string/menu_item_insertion" android:icon="@android:drawable/ic_menu_delete"></item>
 </menu>
