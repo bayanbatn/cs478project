@@ -24,6 +24,7 @@ import android.view.MenuItem;
 public class FCameraPROActivity extends Activity implements ActionBar.TabListener {
 	final private static int TAB_CAPTURE_MONO = 0;
 	final private static int TAB_VIEWER = 1;
+	final private static int TAB_EDITOR = 2;
 	private String mStorageDirectory;
 	public String getStorageDirectory() { return mStorageDirectory; }
 
@@ -31,7 +32,7 @@ public class FCameraPROActivity extends Activity implements ActionBar.TabListene
 	// the user may switch between the two using tabs.
 	private CameraFragment mCameraFragment;
 	private ViewerFragment mViewerFragment;
-	
+	private EditorFragment mEditorFragment;
 
 	public void onStop() {
 		// This kills the background instance.
@@ -79,6 +80,7 @@ public class FCameraPROActivity extends Activity implements ActionBar.TabListene
 		// Fragment API seeming to destroy the fragment after each tab switch
 		mCameraFragment = new CameraFragment();
 		mViewerFragment = new ViewerFragment();
+		mEditorFragment = new EditorFragment();
 
 		// Set up the layout and add tabs. There will be two tabs, one for each fragment.
 		setContentView(R.layout.main);
@@ -87,6 +89,8 @@ public class FCameraPROActivity extends Activity implements ActionBar.TabListene
 				.setTabListener(this).setTag(TAB_CAPTURE_MONO));
 		bar.addTab(bar.newTab().setText(getResources().getString(R.string.menu_viewer))
 				.setTabListener(this).setTag(TAB_VIEWER));
+		bar.addTab(bar.newTab().setText(getResources().getString(R.string.menu_editor))
+				.setTabListener(this).setTag(TAB_EDITOR));
 		bar.setDisplayOptions(ActionBar.DISPLAY_SHOW_CUSTOM | ActionBar.DISPLAY_USE_LOGO);
 		bar.setNavigationMode(ActionBar.NAVIGATION_MODE_TABS);
 		bar.setDisplayShowHomeEnabled(true);
@@ -105,6 +109,12 @@ public class FCameraPROActivity extends Activity implements ActionBar.TabListene
 			break;
 		case TAB_VIEWER:
 			ft.replace(R.id.main_view, mViewerFragment);
+			if (ft.isAddToBackStackAllowed()) {
+				ft.addToBackStack(null);
+			}
+			break;
+		case TAB_EDITOR:
+			ft.replace(R.id.main_view, mEditorFragment);
 			if (ft.isAddToBackStackAllowed()) {
 				ft.addToBackStack(null);
 			}

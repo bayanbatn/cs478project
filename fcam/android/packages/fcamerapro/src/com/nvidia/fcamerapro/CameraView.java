@@ -16,9 +16,6 @@ import android.graphics.BitmapFactory;
 //import android.opengl.GLSurfaceView;
 import android.opengl.GLUtils;
 import android.util.AttributeSet;
-import android.view.MotionEvent;
-import android.view.View;
-import android.view.View.OnTouchListener;
 
 // Added for GLES 2.0
 import android.opengl.GLES20;

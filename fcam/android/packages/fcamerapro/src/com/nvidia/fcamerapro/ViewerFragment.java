@@ -42,7 +42,7 @@ import android.widget.Toast;
  *  
  * @see android.app.Fragment
  */
-public final class ViewerFragment extends Fragment implements FCamInterfaceEventListener, OnItemLongClickListener, OnItemSelectedListener, OnItemClickListener {
+public final class ViewerFragment extends Fragment implements FCamInterfaceEventListener, OnItemLongClickListener, OnItemSelectedListener, OnItemClickListener{
 	private View mContentView;
 	private Gallery mStackGallery, mImageGallery;
 	private HistogramView mHistogram;
@@ -53,7 +53,7 @@ public final class ViewerFragment extends Fragment implements FCamInterfaceEvent
 	private Toast mPreviewHint;
 	final private Handler mHandler = new Handler();
 
-	private int mSelectedStack;
+	private int mSelectedStack;	
 
 	private ActionMode.Callback mLargePreviewActionModeCallback = new ActionMode.Callback() {
 		public boolean onCreateActionMode(ActionMode actionMode, Menu menu) {
@@ -338,7 +338,7 @@ public final class ViewerFragment extends Fragment implements FCamInterfaceEvent
 
 		// ImageStackManager should listen to content changes.
 		mImageStackManager.addContentChangeListener((BaseAdapter) mStackGallery.getAdapter());
-		mImageStackManager.addContentChangeListener((BaseAdapter) mImageGallery.getAdapter());		
+		mImageStackManager.addContentChangeListener((BaseAdapter) mImageGallery.getAdapter());	
 	}
 	
 	/* ====================================================================

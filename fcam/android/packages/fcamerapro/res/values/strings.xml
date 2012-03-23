@@ -36,10 +36,7 @@
 	
 	<string name="label_preview_hint">Long press images to enlarge...</string>
 	<string name="menu_item_merge_stack">Merge Stack</string>
+	<string name="menu_editor">Editor</string>
 	<string name="menu_item_compute_depth">Compute Depthmap</string>
-	
-	
-	
-	
 	
 </resources>

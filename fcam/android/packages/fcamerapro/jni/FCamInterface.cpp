@@ -11,6 +11,7 @@
 #include "AsyncImageWriter.h"
 #include "MyAutoFocus.h"
 #include "FocusSweep.h"
+#include "BlurTool.h"
 #include "ParamStat.h"
 #include "HPT.h"
 #include "SharpnessMapProcessor.h"
@@ -372,6 +373,31 @@ JNIEXPORT void JNICALL Java_com_nvidia_fcamerapro_FCamInterface_mergeAllFocus (J
 	writer->push(is);
 }
 
+JNIEXPORT void JNICALL Java_com_nvidia_fcamerapro_FCamInterface_enqueueMessageForImageBlur(JNIEnv *env, jobject thiz, jstring o1, jstring o2, jfloat focusDepth) {
+	/* [CS478] Assignment #1
+	 * Enqueue a new message that represents a request for global autofocus.
+	 */
+	int value;
+	LOG("DEPTH Image Blur Request\n");
+
+	const char *origFileName = env->GetStringUTFChars(o1, false);
+	const char *depthFileName = env->GetStringUTFChars(o2, false);
+
+	int orig_len = strlen(origFileName) + 1;
+	char *original = (char *) malloc(orig_len);
+	int depth_len = strlen(depthFileName) + 1;
+	char *depth  = (char *) malloc(depth_len);
+
+	memcpy(original, origFileName, orig_len);
+	memcpy(depth, depthFileName, depth_len);
+
+	sAppData->requestQueue.produce(ParamSetRequest(PARAM_IMAGE_BLUR, original, depth, orig_len, ((float) focusDepth)));
+
+	env->ReleaseStringUTFChars(o1, origFileName);
+	env->ReleaseStringUTFChars(o2, depthFileName);
+
+}
+
 }
 
 // ==========================================================================================
@@ -482,7 +508,13 @@ static void *FCamAppThread(void *ptr) {
     MyAutoFocus autofocus(&lens);
     LOG("DEPTH calling focus sweep constructor1 \n");
     FocusSweep focus_sweep(&lens);
-    LOG("DEPTH calling focus sweep constructor2 \n");
+    BlurTool blurTool;
+	ImageSet *is; // writer is a global instance of AsyncImageWriter already defined
+	FCam::Frame frame;
+
+    char* original;
+    char* depth;
+    float focusDepth;
 
     FCam::Image previewImage(PREVIEW_IMAGE_WIDTH, PREVIEW_IMAGE_HEIGHT, FCam::YUV420p);
     FCam::Tegra::Shot shot;
@@ -614,6 +646,18 @@ static void *FCamAppThread(void *ptr) {
 				focus_sweep.startSweep();
 				LOG("DEPTH focus sweep request end\n");
 				break;
+			case PARAM_IMAGE_BLUR:
+				original = (char *) task.getData();
+				depth = (char *) task.getAuxData();
+				focusDepth = task.getAuxFloat();
+				is = writer->newImageSet(); // writer is a global instance of AsyncImageWriter already defined
+				frame = blurTool.blurImage(original, depth, focusDepth);
+
+				//Copy original image and save
+				is->add(FileFormatDescriptor::EFormatJPEG, frame);
+				writer->push(is);
+				LOG("DEPTH Image blur file path %s and %s\n", original, depth);
+				break;
 			default:
 				ERROR("TaskDispatch(): received unsupported task id (%i)!", taskId);
 			}
@@ -693,6 +737,18 @@ static void *FCamAppThread(void *ptr) {
 	    	SaveImageStackImage(focus_sweep.getImageSet(), fmt, depthImage);
 	    	writer->push(focus_sweep.getImageSet());
 	    }
+
+	    //Blur Tool Phase
+	    /* if(blurTool.doBlurImage)
+	    {
+			ImageSet *is = writer->newImageSet(); // writer is a global instance of AsyncImageWriter already defined
+			FCam::Frame frame = blurTool.blurImage(original, depth, focusDepth);
+
+			//Copy original image and save
+			is->add(FileFormatDescriptor::EFormatJPEG, frame);
+			writer->push(is);
+			blurTool.doBlurImage = false;
+	    }*/
 
 	    // Update histogram data
 	    const FCam::Histogram &histogram = frame.histogram();
