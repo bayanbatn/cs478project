@@ -143,47 +143,8 @@ public final class ViewerFragment extends Fragment implements FCamInterfaceEvent
 			}
 			
 			return true;
-			
-		case R.id.mi_insertion:	
-			
-			if (mImageStackManager.getStackCount() > 2 && (mSelectedStack+1) < mImageStackManager.getStackCount()){
-				if (   mImageStackManager.getStack(mSelectedStack) != null
-					&& mImageStackManager.getStack(mSelectedStack).isLoadComplete()
-					&& mImageStackManager.getStack(mSelectedStack).getImageCount() == 2
-					&& mImageStackManager.getStack(mSelectedStack+1) != null
-					&& mImageStackManager.getStack(mSelectedStack+1).isLoadComplete()
-					&& mImageStackManager.getStack(mSelectedStack+1).getImageCount() == 2) {
-				
-				
-					Log.d("fcam_iface", "insertion");
-				
-					
-					ImageStack is1 = mImageStackManager.getStack(mSelectedStack);
-					ImageStack is2 = mImageStackManager.getStack(mSelectedStack+1);
-				
-					int imageCount1 = is1.getImageCount();
-					int imageCount2 = is2.getImageCount();
-					String[] nameArr1 = new String[imageCount1];
-					String[] nameArr2 = new String[imageCount2];
-					for (int i = 0; i < imageCount1; i++) {
-						nameArr1[i] = is1.getImage(i).getName();
-					}
-					for (int i = 0; i < imageCount2; i++) {
-						nameArr2[i] = is2.getImage(i).getName();
-					}
-				
-					FCamInterface fcam = FCamInterface.GetInstance(); 
-					
-					fcam.imageInsertion(nameArr1,nameArr2);		
-					 		
-				}
-			}
-			
-			return true;
-			
 		default:
 			return super.onOptionsItemSelected(item);
-			
 		}
 	}
 
