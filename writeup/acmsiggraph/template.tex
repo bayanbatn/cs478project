@@ -151,7 +151,7 @@ Our synthetic DOF application requires an all-in-focus image as well as a DOF ma
 R=s\frac{D}{2}[\frac{1}{f}-\frac{1}{u}-\frac{1}{s}]
 \end{eqnarray}
 
-where $f$, $u$, $s$, and $D$ are the new focal length, the distance to object from lens, the distance to the image plane from lens, and the lens diameter, respectively (Murali Subbarao). Here, $s$ and $D$ are camera specific constants. Now, let us use the depth field information. Given the depth field, for each pixel, we can estimate the focal length that gives us a zero blur radius: 
+where $f$, $u$, $s$, and $D$ are the new focal length, the distance to object from lens, the distance to the image plane from lens, and the lens diameter, respectively \cite[Subbarao94depthfrom]. Here, $s$ and $D$ are camera specific constants. Now, let us use the depth field information. Given the depth field, for each pixel, we can estimate the focal length that gives us a zero blur radius: 
 
 \begin{eqnarray} 
 0 &=& s\frac{D}{2}[\frac{1}{f_{0}}-\frac{1}{u}-\frac{1}{s}] \nonumber \\
