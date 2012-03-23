@@ -97,10 +97,46 @@ p_{i,j} &:=& images[ d ]( (C_d v)_x, (C_d v)_y)
 \end{eqnarray}
 
 \subsection{Synthetic Depth of Field Application}
+A reverse application of an all-in-focus image would be to create images with synthetic depth-of-field effect. A common use of this would be 
+to create an artificial shallow depth-of-field in an image for artistic effect. Yet another application would be to create the "miniature model" effect
+in images, to create the look and feel of a smaller scene than the one present in reality. Fortunately, we can leverage on the information provided
+by the DOF map to generate a realistic looking DOF. 
+
+Our synthetic DOF application requires an all-in-focus image as well as a DOF map. Given these two, we can accept any arbitrary focal length,
+and generate an image with an "accurate" amount of blur (since we do not model some effects of focal length change, such as magnification,  the
+generated is not hundred percent accurate). We use the following equation to calculate the appropriate blur radius of a pixel, given
+the new focal length: 
+
+\begin{eqnarray} 
+R=s\frac{D}{2}[\frac{1}{f}-\frac{1}{u}-\frac{1}{s}]
+\end{eqnarray}
+
+where $f$, $u$, $s$, and $D$ are focal length, distance to object from lens, distance to the image plane from lens, and the lens diameter, 
+respectively (Murali Subbarao). Here, $s$ and $D$ are camera specific constants. For each pixel, we can estimate a zero blur radius focal length
+from the depth map:
+
+\begin{eqnarray} 
+0&=&s\frac{D}{2}[\frac{1}{f_{0}}-\frac{1}{u}-\frac{1}{s}], which results in
+\frac{1}{s}&=&\frac{1}{f_{0}}-\frac{1}{u}
+\end
+
+Here, $f_0$ denotes the zero blur focal length. We can now simplify the initial expression to for blur radius:
+
+\begin{eqnarray} 
+0&=&s\frac{D}{2}[\frac{1}{f_{0}}-\frac{1}{u}-\frac{1}{s}], which results in
+\frac{1}{s}&=&\frac{1}{f_{0}}-\frac{1}{u}
+\end
+
+\begin{eqnarray} 
+R&=&s\frac{D}{2}[\frac{1}{f}-\frac{1}{f_{0}}], or
+R&\propto&\frac{1}{f}-\frac{1}{f_{0}}
+\end{eqnarray}
+ 
+Since $s$ and $D$ are intrinsic camera constants, we are not interested in them. Furthermore, 
 
 \subsection{Image Merge and Insertion}
 
-\section{Concolusions and Further Works}
+\section{Conclusion and Further Works}
 
 \subsection{Lighting and Shadows}
 One prominent problem with our approach is when the image has strong shadows or specular highlights.  These features produce strong edges in the color space, and thus bilateral filtering may assert a different depth value to these section, even though they should be the same.  This is a difficult problem to solve and is present with other attempts of depth from focus \cite[Grossmann1987] and other unaided image segmentation algorithms.  The best solution to alleviate this problem, if we had more time to implement, is to provide an interface for user feedback and lower the confidence of these segments entirely. 
