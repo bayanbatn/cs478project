@@ -38,7 +38,7 @@
 \maketitle
 
 \begin{abstract}
-Depth information is crucial in providing scene understanding for many post-processing applications in computational photography. While depth maps can be easily obtained through stereo cameras or external devices such as infrared sensors, it is difficult in mobile photography because of hardware limitation. In this project, we will implement depth-by-focus, sweeping a single lens across various focus distances and composite an approximate depth map. The depth map will be improved by segmentation and bilateral filtering. We will then demonstrate the effectiveness of the technique by utilizing the depth map and simulate light-field photography as well as synthetic depth of field.
+Depth information is crucial in providing scene understanding for many post-processing applications in computational photography. While depth maps can be easily obtained through stereo cameras or external devices such as infrared sensors, it is difficult in mobile photography because of hardware limitation. In this project, we will implement depth-by-focus, sweeping a single lens across various focus distances and composite an approximate depth map. The depth map will be improved by segmentation and bilateral filtering. We will then demonstrate the effectiveness of the technique by utilizaing the depth map and simulate light-field photography as well as synthetic depth of field.
 
 \end{abstract}
 
@@ -78,38 +78,9 @@ This gives us our first approximate depth map, as shown in ~\ref{fig:filtered-de
 
 
 \subsection{Synthetic Depth of Field Application}
-\subsubsection{Image Merging}
 
-Depth map provides us information estimated depth distances of the image pixels. Thus, when merging two images, we could get the information which objects in the images is in the front-focus, and could cover the scene of the another image from another image. The application is aimed to merge two images, which has all-in-focus image and depth map. We also assuming that there is no movement and position shift when taking these two images, so that the background is identical. The only difference is the front-focused objects. By utilizing the refined all-in-focus images and depth maps for each image, we simply choose each pixel to present by the corresponding depth value from the depth map. Comparing the depth value, we can synthesize a new image with both front-focused objects shown. 
-
-The result is mainly depended on the quality of depth map.  The following images demonstrate a set of images and their merged image. When depth map value we estimated is accurate. The quality of image merging is well. 
-\begin{figure}[h!]
-   \centering
-   \includegraphics[height=2.0in]{images/merged1}
-   \caption{Example set:Upper and lower left: all-in-focus images, and upper and lower right: the corresponding depth map. }
-\end{figure}
-
-\begin{figure}[h!]
-   \centering
-   \includegraphics[height=2.0in]{images/merged}
-   \caption{Example result: merged image}
-\end{figure}
-
- There is some case that for one pixel, both images have the same depth value. The way we solve this issue now is choosing pixel of one image when this case occurs. 
-
-\subsubsection{Image Depth of Field Image}
 
 \section{Concolusions and Further Works}
-
-
-For the imaging merging part, we need to using image segmentation to solve the ambiguity caused by the case that two images have the same depth value for one pixel. With assistance of image segmentation. we can choose the more likely image to present even if both images have the same depth value. 
-
-\begin{figure}[h!]
-   \centering
-   \includegraphics[height=2.0in]{images/faultmerged}
-   \caption{Fault image: the semi-transparant parts are the areas have the same depth value in both depth values}
-\end{figure}
-
 
 \subsection{Lighting and Shadows}
 
