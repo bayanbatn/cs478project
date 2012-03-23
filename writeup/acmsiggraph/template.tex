@@ -80,7 +80,7 @@ As we sweep across different focus distances, we record only the current maximum
 \label{sec:depthmap-generation}
 One of the inherent problem in sharpness calculations, as well as in all focusing methods in general, is that they fail on textureless surfaces.  Therefore, after obtaining the best focus distance and best sharpness pair, $<d_i, \lambda_i>$, for each sample point, we first correct for points sampled at low texture patches.  Every sample point whose sharpness is below some predefined threshold, $\Lambda$, will update its sharpness by finding the most common depth value in the patches around it.  This is achieved by a simple voting scheme: each of the nine pixels will cast a vote for the depth value it represents, and its vote is weighted by its confidence, which is the normalized sharpness value. \\
 Then, we simply naively assume the entire patch exists at the same depth, thus generating a blocky depth map as in ~\ref{fig:initial-depth-map} of the same dimension as the input image. Next, we take a full-colored frame from the input stack as reference image, and use joint bilateral filtering to smooth out the patch boundaries.  This is because we want fairly aggressive smoothing while preserving edges from the color space. \\
-This gives us our first approximate depth map, as shown in ~\ref{fig:filtered-depth-map}.  We quickly realized that any frame we could choose from the stack could not serve as a good edge reference, because at least some part of the image is out of focus.  We can solve the problem if we had an all-in-focus image, but we could only get a good all-in-focus image if we had a better depth map.  To solve this problem, we iteratively refined our depth map by generating all-in-focus image based on the current depth map ~\ref{fig:depth-map-refining}.  This provides us highly accurate depth map with clear object edges.
+This gives us our first approximate depth map, as shown in ~\ref{fig:filtered-depth-map}.  We quickly realized that any frame we could choose from the stack could not serve as a good edge reference, because at least some part of the image is out of focus.  We can solve the problem if we had an all-in-focus image, but we could only get a good all-in-focus image if we had a better depth map.  To solve this problem, we iteratively refined our depth map by generating all-in-focus image based on the current depth map ~\ref{fig:depth-map-refining}.  This provides us highly accurate depth map with clear object edges, while smoothing the borders to produce convincing transition between the patches. 
 
 \subsection{All-in-Focus Imaging}
 
@@ -94,13 +94,14 @@ There is a subtle problem to solve when merging images at different focus distan
 v &:=& [x,y,1] \nonumber \\
 d &:=& depthmap_{i,j}  \nonumber \\
 p_{i,j} &:=& images[ d ]( (C_d v)_x, (C_d v)_y)
-\end{eqnarray}
+\end{eqnarray}. The resulting all-in-focus images are in fact very convincing, as seen in figure ~\ref{fig:all-focus}.
 
 \subsection{Synthetic Depth of Field Application}
 
 \subsection{Image Merge and Insertion}
 
 \section{Concolusions and Further Works}
+Overall, depth from focus provides a good way of achieving an approximate depth map for certain applications.  While the depth map is not perfect for tasks that require clear and definite object borders, like image insertion, it produces very satisfactory all-in-focus images. This is the depth maps are unreliable in places of low texture, but for all-in-focus images, it is difficult to distinguish textureless patches from different depths in the image stack anyway. On the other hand, for object insertion, we can easily have holes in an object filled in by scene from a different depth from the other image.
 
 \subsection{Lighting and Shadows}
 One prominent problem with our approach is when the image has strong shadows or specular highlights.  These features produce strong edges in the color space, and thus bilateral filtering may assert a different depth value to these section, even though they should be the same.  This is a difficult problem to solve and is present with other attempts of depth from focus \cite[Grossmann1987] and other unaided image segmentation algorithms.  The best solution to alleviate this problem, if we had more time to implement, is to provide an interface for user feedback and lower the confidence of these segments entirely. 
