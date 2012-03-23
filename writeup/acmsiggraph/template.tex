@@ -8,7 +8,7 @@
 %%% for the commands and parameters found in the source document. (The code
 %%% is identical in ``template.tex'' and ``template.annotated.tex.'')
 
-\documentclass[annual]{acmsiggraph}
+\documentclass[annual, 12pt]{acmsiggraph}
 \usepackage{program}
 
 \TOGonlineid{45678}
@@ -162,20 +162,20 @@ respectively (Murali Subbarao). Here, $s$ and $D$ are camera specific constants.
 from the depth map:
 
 \begin{eqnarray} 
-0&=&s\frac{D}{2}[\frac{1}{f_{0}}-\frac{1}{u}-\frac{1}{s}], which results in
-\frac{1}{s}&=&\frac{1}{f_{0}}-\frac{1}{u}
-\end
+0 &=& s\frac{D}{2}[\frac{1}{f_{0}}-\frac{1}{u}-\frac{1}{s}], which results in\nonumber \\
+\frac{1}{s} &=& \frac{1}{f_0} - \frac{1}{u} 
+\end{eqnarray}
 
 Here, $f_0$ denotes the zero blur focal length. We can now simplify the initial expression to for blur radius:
 
 \begin{eqnarray} 
-0&=&s\frac{D}{2}[\frac{1}{f_{0}}-\frac{1}{u}-\frac{1}{s}], which results in
-\frac{1}{s}&=&\frac{1}{f_{0}}-\frac{1}{u}
-\end
+0&=&s\frac{D}{2}[\frac{1}{f_{0}}-\frac{1}{u}-\frac{1}{s}], which results in \nonumber \\
+\frac{1}{s}&=&\frac{1}{f_{0}}-\frac{1}{u} 
+\end{eqnarray}
 
 \begin{eqnarray} 
-R&=&s\frac{D}{2}[\frac{1}{f}-\frac{1}{f_{0}}], or
-R&\propto&\frac{1}{f}-\frac{1}{f_{0}}
+R &=& s\frac{D}{2}[\frac{1}{f}-\frac{1}{f_0}], or \nonumber \\
+R &\propto& \frac{1}{f}-\frac{1}{f_{0}}
 \end{eqnarray}
  
 Since $s$ and $D$ are intrinsic camera constants, we are not interested in them. Furthermore, in our end application, we wish allow the users to

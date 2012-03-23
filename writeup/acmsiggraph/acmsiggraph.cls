@@ -46,8 +46,8 @@
 
 \DeclareOption{onecolumn}{\OptionNotUsed}
 \DeclareOption{a4paper}{\OptionNotUsed}
-\DeclareOption{12pt}{\OptionNotUsed}
-\DeclareOption{14pt}{\OptionNotUsed}
+%\DeclareOption{12pt}{\OptionNotUsed}
+%\DeclareOption{14pt}{\OptionNotUsed}
 
 % options that we DO want to set.
 
