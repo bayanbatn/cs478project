@@ -171,6 +171,13 @@ R&\propto&\frac{1}{f}-\frac{1}{f_{0}}
  
 Since $s$ and $D$ are intrinsic constants of the camera, we are not interested in them. Furthermore, in our application, we wish allow the users to customize the degree of synthetic blur. Consequently, we do not require calibration to measure $D$ and $s$. 
 
+\begin{figure}
+\centering
+\includegraphics[width=3in]{images/synthetic-blur-screenshot.png}
+\caption{Screen Shot of Synthetic Blur App}
+\label{fig:synthetic-blur-shot}
+\end{figure}
+
 To generate an image with spatially varying amounts of blur, we use interpolation. We generate several copies of the original image, all of which are uniformly Gaussian blurred at different standard deviation values. In the final image, at each pixel, we determine the size of the blur radius first. We then interpolate the pixel value from two of the Gaussian blurred images. Given: 
 
 \begin{eqnarray} 
